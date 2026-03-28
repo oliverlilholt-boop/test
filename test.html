@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<!-- saved from url=(0085)file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html -->
+<html lang="en" class="light-theme"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moxso — Technical Architecture &amp; Integration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="./test_files/css2" rel="stylesheet">
+
+  <style>/* ═══════════════════════════════════════════════════════════════
+   Moxso — Technical Architecture & Integration
+   ─────────────────────────────────────────────────────────────
+   Rule order (do not resequence — cascade is intentional):
+     Tokens · Reset · Topbar · Layout · Side nav · Content container
+     Hero · Section · Geist grid
+     Components: Loop · Signal table · Integrations · Timeline
+                 Data grid · Compliance · Note · Statement
+                 Markets · Screenshot/UI
+     CTA · Footer · Hero animations · Responsive (stub)
+     Section themes (dark + accent base)
+     CTA+footer unified · Centered statement · Markets
+     Section separators · Section qualifier · Screenshot
+     Scroll reveal + motion · Mobile responsive pass
+   ═══════════════════════════════════════════════════════════════ */
+
+
+    /* ── 01  TOKENS ──────────────────────────────────────────── */
+    :root {
+      --font-sans: "Geist", "Inter", system-ui, sans-serif;
+      --font-mono: "Geist Mono", ui-monospace, monospace;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-pill: 100px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .light-theme {
+      --bg:            #FAFAF7;
+      --bg-2:          #F5F3EE;
+      --bg-3:          #EDEAE3;
+      --bg-inverse:    #0C0C0B;
+      --bg-inverse-2:  #141412;
+      --fg:            #0C0C0B;
+      --fg-2:          #6B6965;
+      --fg-3:          #9E9B96;
+      --fg-inverse:    #F0EDE6;
+      --fg-inverse-2:  #8A8782;
+      --border:        rgba(0,0,0,0.07);
+      --border-em:     rgba(0,0,0,0.13);
+      --guide:         rgba(0,0,0,0.12);
+      --accent:        #3B6EF4;
+      --accent-soft:   rgba(59,110,244,0.09);
+      --accent-soft-2: rgba(59,110,244,0.05);
+    }
+
+    /* ── 02  RESET ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); color: var(--fg); scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+
+
+    /* ── 03  TOPBAR ──────────────────────────────────────────── */
+
+    .topbar-cta:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .topbar-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 16px;
+      background: var(--fg);
+      color: var(--bg);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: rgba(250,250,247,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid var(--border-em);
+      z-index: 99;
+      contain: layout style;
+    }
+
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 80px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .topbar-logo-svg svg,
+    .topbar-logo-svg { display: block; height: 22px; width: auto; }
+
+    .footer-logo-svg svg,
+    .footer-logo-svg { display: block; height: 18px; width: auto; }
+
+    .footer-top-simple {
+      padding-top: 48px;
+      padding-bottom: 32px;
+      border-top: 0.5px solid rgba(255,255,255,0.10);
+      border-bottom: 0.5px solid rgba(255,255,255,0.08);
+      margin-bottom: 28px;
+    }
+
+    /* ── 04  LAYOUT ──────────────────────────────────────────── */
+    .page-layout {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* ── 05  SIDE NAV ────────────────────────────────────────── */
+
+    .side-nav-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      margin-bottom: 20px;
+    }
+
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      left: max(16px, calc((100vw - 1120px) / 2 - 220px));
+      width: 200px;
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      contain: layout style;
+      display: none;
+    }
+
+    .side-nav-list a.active {
+      color: var(--fg);
+      border-left-color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 500;
+    }
+
+    .side-nav-list a:hover {
+      color: var(--fg);
+      background: var(--bg-2);
+    }
+
+    .side-nav-list a {
+      display: block;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--fg-3);
+      text-decoration: none;
+      padding: 5px 12px 5px 14px;
+      border-left: 2px solid transparent;
+      border-radius: var(--radius-sm);
+      letter-spacing: -0.01em;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+
+    .side-nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    /* Side nav — fixed floating card, left side */
+
+    .side-nav.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .side-nav-inner {
+      background: rgba(250,250,247,0.97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 0.5px solid var(--border-em);
+      border-radius: var(--radius-lg);
+      padding: 18px 14px 20px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .main-content {
+      display: block;
+      width: 100%;
+    }
+
+    /* ── 06  CONTENT CONTAINER ───────────────────────────────── */
+    .content-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 48px 0 calc(200px + 80px);
+    }
+
+    /* ── 07  HERO ────────────────────────────────────────────── */
+
+    .hero-meta {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+      animation: fadeBlurUp 0.6s var(--ease-out) 0.44s both;
+      flex-direction: column;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--fg-inverse-2);
+      max-width: 560px;
+      margin-bottom: 36px;
+      letter-spacing: -0.005em;
+      animation: fadeBlurUp 0.6s var(--ease-out) 0.32s both;
+    }
+
+    .hero-headline {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--fg-inverse);
+      max-width: 640px;
+      margin-bottom: 20px;
+      animation: fadeBlurUp 0.65s var(--ease-out) 0.18s both;
+    }
+
+    .hero {
+      padding: 64px 0 56px;
+      border-bottom: none;
+      border-top: none;
+      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(59,110,244,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 20%, rgba(59,110,244,0.06) 0%, transparent 60%),
+        var(--bg-inverse);
+      position: relative;
+      overflow: hidden;
+      contain: layout style;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .hero-headline em {
+      font-style: normal;
+      font-weight: 400;
+      color: var(--fg-2);
+    }
+
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-3);
+      letter-spacing: 0.04em;
+    }
+
+    .hero-meta-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--fg-3);
+      flex-shrink: 0;
+    }
+
+    .hero-meta-dot.live {
+      background: #00A050;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ── 08  SECTION ─────────────────────────────────────────── */
+
+    .section {
+      padding: 88px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section:last-of-type {
+      border-bottom: none;
+    }
+
+    /* Content wrap inside every section and hero */
+    .section-wrap,
+    .hero-wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding-left: 80px;
+      padding-right: 80px;
+      box-sizing: border-box;
+    }
+
+    
+
+
+    .section-header {
+      margin-bottom: 52px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--fg);
+      margin-bottom: 16px;
+      max-width: 560px;
+    }
+
+    .section-body {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--fg-2);
+      max-width: 580px;
+    }
+
+    /* ── 09  GEIST GRID ──────────────────────────────────────── */
+
+    .g-cell {
+      padding: 28px 28px;
+      border-right: 0.5px solid var(--guide);
+      border-bottom: 0.5px solid var(--guide);
+      border-color: var(--border-em);
+      background: transparent;
+      transition: background 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .geist-grid {
+      display: grid;
+      border-left: 0.5px solid var(--guide);
+      border-top: 0.5px solid var(--guide);
+      border-color: rgba(255,255,255,0.10);
+      contain: layout;
+    }
+
+    .geist-grid--2 { grid-template-columns: repeat(2, 1fr); }
+    .geist-grid--3 { grid-template-columns: repeat(3, 1fr); }
+    .geist-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .g-cell--padded { padding: 36px 32px; }
+    .g-cell--wide { grid-column: span 2; }
+    .g-cell--accent-top { border-top: 2px solid var(--accent); }
+    .g-cell--dark {
+      background: var(--bg-inverse);
+      color: var(--fg-inverse);
+    }
+
+    .cell-code {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .cell-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .cell-body {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--fg-2);
+    }
+
+    /* ── 10a LOOP DIAGRAM ────────────────────────────────────── */
+    .loop-wrap {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border-left: 0.5px solid var(--guide);
+      border-top: 0.5px solid var(--guide);
+      margin-bottom: 48px;
+    }
+
+    .loop-step {
+      padding: 32px 24px;
+      border-right: 0.5px solid var(--guide);
+      border-bottom: 0.5px solid var(--guide);
+      position: relative;
+    }
+
+    .loop-step::after {
+      content: '→';
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--fg-3);
+      z-index: 2;
+    }
+
+    .loop-step:last-child::after { display: none; }
+
+    .loop-step-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .loop-step-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .loop-step-body {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--fg-2);
+    }
+
+    .loop-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border-left: 0.5px solid var(--guide);
+      border-top: 0.5px solid var(--guide);
+    }
+
+    .loop-detail {
+      padding: 20px 24px;
+      border-right: 0.5px solid var(--guide);
+      border-bottom: 0.5px solid var(--guide);
+      background: var(--bg-2);
+    }
+
+    .loop-detail-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: var(--fg-3);
+      margin-bottom: 6px;
+    }
+
+    .loop-detail-value {
+      font-size: 12px;
+      color: var(--fg-2);
+      line-height: 1.5;
+    }
+
+    /* ── 10b SIGNAL TABLE ────────────────────────────────────── */
+
+    .signal-table tr:hover td {
+      background: var(--bg-2);
+      transition: background 0.15s ease;
+    }
+    .signal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .signal-table th {
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      text-align: left;
+      border-bottom: 1px solid var(--border-em);
+    }
+
+    .signal-table td {
+      padding: 14px 16px;
+      color: var(--fg-2);
+      border-bottom: 0.5px solid var(--border);
+      line-height: 1.5;
+      vertical-align: top;
+    }
+
+    .signal-table tr:last-child td { border-bottom: none; }
+
+    .signal-table td:first-child {
+      color: var(--fg);
+      font-weight: 500;
+      width: 220px;
+    }
+
+    /* ── 10c INTEGRATION BLOCKS ──────────────────────────────── */
+
+    .int-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 12px;
+      background: rgba(255,255,255,0.08);
+      border: 0.5px solid var(--border-em);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--fg-inverse);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      max-width: 100%;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      cursor: default;
+      border-color: rgba(255,255,255,0.15);
+    }
+    .integration-section {
+      margin-bottom: 48px;
+    }
+
+    .integration-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .integration-label::after {
+      content: '';
+      flex: 1;
+      height: 0.5px;
+      background: var(--border-em);
+    }
+
+    .int-badge--required {
+      background: var(--accent-soft);
+      border-color: rgba(59,110,244,0.2);
+      color: var(--accent);
+    }
+
+    .req-marker {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+    }
+
+    .opt-marker {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fg-2);
+      background: var(--bg-3);
+      border: 0.5px solid var(--border-em);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+    }
+
+    /* ── 10d DEPLOYMENT TIMELINE ─────────────────────────────── */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-left: 0.5px solid var(--guide);
+      border-top: 0.5px solid var(--guide);
+    }
+
+    .timeline-step {
+      padding: 32px 28px;
+      border-right: 0.5px solid var(--guide);
+      border-bottom: 0.5px solid var(--guide);
+      position: relative;
+    }
+
+    .timeline-step--accent {
+      border-top: 2px solid var(--accent);
+    }
+
+    .timeline-week {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      margin-bottom: 12px;
+    }
+
+    .timeline-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .timeline-tasks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .timeline-tasks li {
+      font-size: 12px;
+      color: var(--fg-2);
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .timeline-tasks li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--fg-3);
+      font-size: 10px;
+      top: 1px;
+    }
+
+    .timeline-outcome {
+      margin-top: 16px;
+      padding: 10px 12px;
+      background: var(--bg-2);
+      border-left: 2px solid var(--accent);
+      font-size: 11px;
+      color: var(--fg-2);
+      line-height: 1.5;
+      font-family: var(--font-mono);
+    }
+
+    /* ── 10e DATA GRID ───────────────────────────────────────── */
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-left: 0.5px solid var(--guide);
+      border-top: 0.5px solid var(--guide);
+    }
+
+    .data-cell {
+      padding: 36px 32px;
+      border-right: 0.5px solid var(--guide);
+      border-bottom: 0.5px solid var(--guide);
+    }
+
+    .data-cell-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      margin-bottom: 12px;
+    }
+
+    .data-cell-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+
+    .data-cell-body {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--fg-2);
+    }
+
+    /* ── 10f COMPLIANCE STRIP ────────────────────────────────── */
+    .compliance-icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .compliance-icon-item img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .compliance-icon-item span {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .compliance-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 28px;
+      align-items: center;
+    }
+
+    .compliance-badge {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 10px;
+      background: var(--bg-2);
+      border: 0.5px solid var(--border-em);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--fg-2);
+    }
+
+    /* ── 10g NOTE / CALLOUT ──────────────────────────────────── */
+
+    .note--info {
+      border-left: 2px solid var(--accent);
+      background: rgba(59,110,244,0.12);
+      border-color: rgba(59,110,244,0.3);
+      border-left-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(59,110,244,0.1), 0 2px 8px rgba(59,110,244,0.06);
+    }
+    .note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 0.5px solid var(--border-em);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--fg-2);
+      background: var(--bg-2);
+      margin-top: 20px;
+    }
+
+    .note-icon {
+      flex-shrink: 0;
+      color: var(--accent);
+      margin-top: 1px;
+    }
+
+    /* ── 11  CTA ─────────────────────────────────────────────── */
+
+    .btn-ghost:hover {
+      background: var(--bg-2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 20px;
+      background: transparent;
+      color: var(--fg);
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      border: 0.5px solid rgba(255,255,255,0.12);
+      transition: background 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border-color: var(--border-em);
+    }
+
+    .btn-primary:hover {
+      opacity: 1;
+      box-shadow: 0 0 0 3px rgba(59,110,244,0.25), 0 4px 16px rgba(59,110,244,0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 20px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cta-section {
+      background: var(--bg-inverse);
+      padding: 0;
+    }
+
+    .cta-inner {
+      max-width: 580px;
+    }
+
+    .cta-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg-inverse-2);
+      margin-bottom: 20px;
+    }
+
+    .cta-title {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.15;
+      color: var(--fg-inverse);
+      margin-bottom: 14px;
+    }
+
+    .cta-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--fg-inverse-2);
+      margin-bottom: 32px;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ── 12  FOOTER ──────────────────────────────────────────── */
+
+    .compliance-icon-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    footer {
+      background: var(--bg-inverse);
+      padding: 48px 48px 40px calc(200px + 80px);
+    }
+
+    .footer-inner {
+      max-width: 860px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 40px;
+      border-bottom: 0.5px solid rgba(255,255,255,0.08);
+      margin-bottom: 32px;
+    }
+
+    .footer-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .footer-compliance-icons {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .compliance-icon-badge img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      opacity: 0.7;
+      filter: brightness(0) invert(1);
+    }
+
+    .compliance-icon-badge svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .compliance-icon-badge span {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(138,135,130,0.6);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .footer-logo-word {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg-inverse);
+      letter-spacing: -0.02em;
+    }
+
+    .footer-what {
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--fg-inverse-2);
+      max-width: 380px;
+    }
+
+    .footer-nav-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--fg-inverse-2);
+      margin-bottom: 14px;
+    }
+
+    .footer-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-nav-links a {
+      font-size: 13px;
+      color: var(--fg-inverse-2);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .footer-nav-links a:hover { color: var(--fg-inverse); }
+
+    .footer-compliance {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      color: var(--fg-inverse-2);
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+
+    .footer-legal {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      color: rgba(138,135,130,0.5);
+      line-height: 1.7;
+    }
+
+    /* ── 13  HERO ANIMATIONS ─────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeBlurUp {
+      from { opacity: 0; filter: blur(6px); transform: translateY(10px); }
+      to   { opacity: 1; filter: blur(0); transform: translateY(0); }
+    }
+
+    .hero .eyebrow    { animation: fadeBlurUp 0.5s var(--ease-out) 0.05s both; }
+
+    /* ── 14  RESPONSIVE (stub) ───────────────────────────────── */
+    
+
+    
+
+    
+
+    
+
+    /* ── 15  SECTION THEMES ──────────────────────────────────── */
+
+    [data-theme="dark"] {
+      background: var(--bg-inverse);
+      color: var(--fg-inverse);
+      border-top: none;
+      border-bottom: none;
+    }
+
+    [data-theme="dark"] .section-label {
+      color: var(--accent);
+    }
+
+    [data-theme="dark"] .section-label::before {
+      background: var(--accent);
+    }
+
+    [data-theme="dark"] .section-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="dark"] .section-qualifier {
+      color: rgba(255,255,255,0.5);
+    }
+
+    [data-theme="dark"] .section-body {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .cell-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="dark"] .cell-body {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .cell-code {
+      color: var(--accent);
+    }
+
+    [data-theme="dark"]
+
+    [data-theme="dark"]
+
+    [data-theme="dark"] .loop-step {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .loop-step-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="dark"] .loop-step-body {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .loop-step-num {
+      color: var(--accent);
+    }
+
+    [data-theme="dark"] .loop-wrap {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .loop-detail-grid {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .loop-detail {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .loop-detail-label {
+      color: rgba(255,255,255,0.35);
+    }
+
+    [data-theme="dark"] .loop-detail-value {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .loop-step::after {
+      color: rgba(255,255,255,0.2);
+    }
+
+    [data-theme="dark"] .timeline {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .timeline-step {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .timeline-week {
+      color: rgba(255,255,255,0.35);
+    }
+
+    [data-theme="dark"] .timeline-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="dark"] .timeline-tasks li {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .timeline-tasks li::before {
+      color: rgba(255,255,255,0.2);
+    }
+
+    [data-theme="dark"] .timeline-outcome {
+      background: rgba(255,255,255,0.04);
+      border-left-color: var(--accent);
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .data-grid {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .data-cell {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    [data-theme="dark"] .data-cell-label {
+      color: rgba(255,255,255,0.35);
+    }
+
+    [data-theme="dark"] .data-cell-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="dark"] .data-cell-body {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"]
+
+    [data-theme="dark"] .note--info span {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="dark"] .hero-meta-item {
+      color: rgba(255,255,255,0.4);
+    }
+
+    [data-theme="dark"] .hero-meta-dot {
+      background: rgba(255,255,255,0.3);
+    }
+
+    [data-theme="dark"] .hero-meta-dot.live {
+      background: #00A050;
+    }
+
+    /* Accent-tint theme — clean warm tint, not blue wash */
+    [data-theme="accent"] {
+      background: #111D35;  /* same dark navy as closing section — reads as dark */
+    }
+
+    [data-theme="accent"] .integration-label {
+      color: var(--fg-2);
+    }
+
+    [data-theme="accent"]
+
+    [data-theme="accent"]
+
+    [data-theme="accent"] .g-cell--padded {
+      background: #FAFAF7;  /* pure ivory card on the warm tint */
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    [data-theme="accent"] .g-cell--padded:hover {
+      background: #FAFAF7;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+      transition: box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+    }
+
+    /* Section borders — remove between same-feel sections, keep hard edges */
+    [data-theme="dark"] + [data-theme="dark"],
+    section:not([data-theme]) + section:not([data-theme]) {
+      border-top: none;
+    }
+
+    /* Hard collision lines between theme switches */
+
+    section:not([data-theme]) {
+      border-bottom: 0.5px solid var(--border);
+    }
+
+
+
+    /* Hero eyebrow on dark */
+    [data-theme="dark"] .eyebrow {
+      color: var(--accent);
+    }
+
+    [data-theme="dark"]
+
+    [data-theme="dark"]
+
+    /* Section padding for dark sections — add top/bottom breathing room */
+    [data-theme="dark"].section,
+    [data-theme="accent"]
+
+
+    /* Dark/accent sections span full viewport width naturally — no grid to fight */
+    [data-theme="dark"].section,
+    [data-theme="accent"].section,
+    [data-theme="dark"]
+
+    /* Subtle grain texture on hero */
+    [data-theme="dark"].hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    [data-theme="dark"].hero .hero-wrap {
+      position: relative;
+      z-index: 1;
+    }
+
+
+
+
+    /* ── 16  CTA + FOOTER UNIFIED ────────────────────────────── */
+
+
+
+    .cta-footer-left,
+
+    .cta-footer-grid {
+      border-top: none;
+      border-color: var(--border-em);
+      border-left: none;
+      grid-template-columns: 1fr;
+    }
+    .cta-footer-block {
+      background: var(--bg);
+    }
+
+    .cta-footer-wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding-left: 80px;
+      padding-right: 80px;
+      box-sizing: border-box;
+    }
+
+    .cta-footer-left {
+      padding: 80px 48px 80px 80px;
+      border-left: none;
+    }
+
+    
+
+
+    /* ── 17  CENTERED STATEMENT ──────────────────────────────── */
+    .centered-statement {
+      padding: 80px 0;
+      border-bottom: 0.5px solid var(--border);
+      text-align: center;
+    }
+
+    .statement-text {
+      font-size: clamp(18px, 2vw, 22px);
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--fg-2);
+      max-width: 680px;
+      margin: 0 auto 48px;
+      letter-spacing: -0.01em;
+    }
+
+    .statement-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .step-divider {
+      color: var(--fg-3);
+      font-size: 14px;
+    }
+
+    /* ── 18  MARKETS STRIP ───────────────────────────────────── */
+    .markets-strip {
+      padding: 32px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .markets-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      margin-bottom: 20px;
+    }
+
+    .markets-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .market-item {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--fg-2);
+      padding: 8px 24px 8px 0;
+      letter-spacing: -0.01em;
+      border-right: 0.5px solid var(--border-em);
+      margin-right: 24px;
+    }
+
+    .market-item:last-child {
+      border-right: none;
+      margin-right: 0;
+    }
+
+    /* ── 19  SECTION SEPARATORS ──────────────────────────────── */
+
+    /* Increase section padding */
+
+    [data-theme="dark"].section,
+    [data-theme="accent"]
+
+
+    /* ── 20  SECTION QUALIFIER ───────────────────────────────── */
+    .section-qualifier {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--fg-2);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+      font-style: italic;
+    }
+
+    /* ── 21  SCREENSHOT + UI MOCK ────────────────────────────── */
+    .screenshot-block {
+      background: var(--bg-inverse);
+      padding: 48px 0 0;
+      overflow: hidden;
+    }
+
+    .screenshot-block-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 80px;
+    }
+
+    .screenshot-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 24px;
+    }
+
+    .screenshot-ui {
+      background: #141412;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    /* Simulated dashboard UI */
+    .ui-topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    }
+
+    .ui-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .ui-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.04em;
+      margin-left: 8px;
+    }
+
+    .ui-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ui-card {
+      background: rgba(255,255,255,0.04);
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .ui-card-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .ui-card-value {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      color: var(--fg-inverse);
+      margin-bottom: 4px;
+    }
+
+    .ui-card-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .ui-card-accent { border-top: 2px solid var(--accent); }
+    .ui-card-success { border-top: 2px solid #00A050; }
+    .ui-card-warn { border-top: 2px solid #F5A623; }
+
+    .ui-table-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 0.5px solid rgba(255,255,255,0.05);
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      align-items: center;
+    }
+
+    .ui-table-row:first-child {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+    }
+
+    .ui-table-row.highlight {
+      background: rgba(59,110,244,0.08);
+      color: var(--fg-inverse);
+      border-radius: 4px;
+    }
+
+    .ui-risk-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 500;
+      font-family: var(--font-mono);
+    }
+
+    .ui-risk-high { background: rgba(238,0,0,0.15); color: #FF4444; }
+    .ui-risk-med  { background: rgba(245,166,35,0.15); color: #F5A623; }
+    .ui-risk-low  { background: rgba(0,160,80,0.12); color: #00A050; }
+
+
+    /* ══════════════════════════════════════════
+       MICRO-DETAIL LAYER — Profound-inspired
+    ══════════════════════════════════════════ */
+
+    /* ── 22  ANIMATIONS + MOTION ─────────────────────────────── */
+
+    .reveal.is-visible {
+      animation: fadeBlurInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      will-change: auto;
+    }
+    @keyframes fadeBlurInUp {
+      from { opacity: 0; filter: blur(6px); transform: translateY(12px); }
+      to   { opacity: 1; filter: blur(0px); transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+    }
+
+    /* Stagger children */
+    .reveal-group .reveal:nth-child(1) { animation-delay: 0s; }
+    .reveal-group .reveal:nth-child(2) { animation-delay: 0.08s; }
+    .reveal-group .reveal:nth-child(3) { animation-delay: 0.16s; }
+    .reveal-group .reveal:nth-child(4) { animation-delay: 0.24s; }
+
+    /* 2. Tooltip / callout pop-in */
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; transform: scale(0.975); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .note {
+      animation: tooltipFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* 3. Button hover — glow + lift */
+
+    /* Topbar CTA hover */
+
+    /* 4. Arrow icon motion on CTA hover */
+    @keyframes arrowIn {
+      from { transform: translate(0, 0); opacity: 0.6; }
+      to   { transform: translate(2px, -2px); opacity: 1; }
+    }
+
+    .cta-arrow {
+      display: inline-block;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-primary:hover .cta-arrow {
+      transform: translate(2px, -2px);
+    }
+
+    /* 5. Cell hover — subtle background lift */
+
+    .g-cell:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    [data-theme="dark"] .g-cell:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* 6. Nav link hover — slide-in underline */
+
+
+
+    /* 8. Signal table rows — subtle hover */
+
+    /* 9. Topbar — stronger backdrop blur */
+
+    /* 10. Hairline section separators — more intentional */
+
+    [data-theme="dark"]
+
+    /* 11. Timeline outcome callout — subtle pulse on load */
+    @keyframes subtlePulse {
+      0%, 100% { border-left-color: var(--accent); }
+      50% { border-left-color: rgba(59,110,244,0.4); }
+    }
+
+    .timeline-step--accent .timeline-outcome {
+      animation: subtlePulse 3s ease-in-out infinite;
+    }
+
+    /* 12. Note callout border glow */
+
+    /* 13. Section label dot — micro pulse on page load */
+    @keyframes dotAppear {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .section-label::before {
+      animation: dotAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* 14. Compliance badge hover */
+
+    .compliance-icon-badge:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+
+    /* 15. Integration badge hover */
+
+    .int-badge--required:hover {
+      background: rgba(59,110,244,0.15);
+      border-color: rgba(59,110,244,0.35);
+      color: #2451C7;  /* darker accent for contrast */
+    }
+
+
+    /* Subtle accent line where dark → light transition occurs */
+    [data-theme="dark"].section + .section:not([data-theme]) {
+      border-top: 1px solid rgba(59,110,244,0.15);
+    }
+
+    /* And where light → dark */
+    .section:not([data-theme]) + [data-theme="dark"]
+
+
+    /* ── 23  MOBILE RESPONSIVE PASS ──────────────────────────── */
+    
+
+    
+
+
+    .topbar-cta-short { display: none; }
+
+    
+
+
+    [data-theme="accent"] .section-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="accent"] .section-label {
+      color: var(--accent);
+    }
+
+    [data-theme="accent"] .section-qualifier {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="accent"] .section-body {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="accent"] .integration-label {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="accent"] .integration-label::after {
+      background: rgba(255,255,255,0.12);
+    }
+
+    [data-theme="accent"]
+
+    [data-theme="accent"]
+
+    [data-theme="accent"] .cell-title {
+      color: var(--fg-inverse);
+    }
+
+    [data-theme="accent"] .cell-body {
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="accent"] .cell-code {
+      color: var(--accent);
+    }
+
+    [data-theme="accent"] .g-cell--padded {
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    [data-theme="accent"] .g-cell--padded:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    [data-theme="accent"]
+
+    [data-theme="accent"] .int-badge--required {
+      background: var(--accent-soft);
+      border-color: rgba(59,110,244,0.4);
+      color: #7BA8FF;
+    }
+
+    [data-theme="accent"] .int-badge--required:hover {
+      background: rgba(59,110,244,0.2);
+      color: #A0C0FF;
+    }
+
+    [data-theme="accent"] .req-marker {
+      background: var(--accent-soft);
+      color: #7BA8FF;
+    }
+
+    [data-theme="accent"] .opt-marker {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      color: var(--fg-inverse-2);
+    }
+
+    [data-theme="accent"]
+
+    [data-theme="accent"] .note--info span {
+      color: var(--fg-inverse-2);
+    }
+
+
+    /* CTA+footer on ivory — text flips to dark */
+    .cta-footer-block .cta-label { color: var(--fg-3); }
+    .cta-footer-block .cta-title { color: var(--fg); }
+    .cta-footer-block .cta-body  { color: var(--fg-2); }
+    .cta-footer-block
+    .cta-footer-block
+    .cta-footer-block
+    .cta-footer-block .footer-what { color: var(--fg-2); }
+    .cta-footer-block .footer-compliance { color: var(--fg-3); }
+    .cta-footer-block .footer-legal { color: var(--fg-3); }
+    .cta-footer-block .footer-legal a { color: var(--fg-3); }
+    .cta-footer-block .compliance-icon-badge img {
+      filter: invert(1) brightness(0) saturate(0%) opacity(0.45);  /* grey on ivory */
+    }
+    .cta-footer-block .compliance-icon-badge span { color: var(--fg-3); }
+    .cta-footer-block .footer-logo-svg svg .logo-wordmark { fill: var(--fg); }
+    .cta-footer-block
+    .cta-footer-block
+
+
+    /* CTA+footer — no grid lines, no cell hover */
+    .cta-footer-left:hover,
+    .cta-footer-right:hover {
+      background: transparent;
+      transform: none;
+      box-shadow: none;
+    }
+
+
+    /* Footer logo wordmark on ivory — flip to dark */
+    .cta-footer-block .logo-wordmark {
+      fill: #0C0C0B;
+    }
+
+
+    /* Subtle separator between CTA and footer info columns */
+
+    
+
+
+    /* Compliance SVGs on ivory footer — force dark */
+    .cta-footer-block .compliance-icon-badge svg path,
+    .cta-footer-block .compliance-icon-badge svg circle,
+    .cta-footer-block .compliance-icon-badge svg rect,
+    .cta-footer-block .compliance-icon-badge svg polygon {
+      fill: rgba(0,0,0,0.45) !important;
+      stroke: rgba(0,0,0,0.45) !important;
+    }
+
+    /* For the img fallback (APA which is PNG) */
+    .cta-footer-block .compliance-icon-badge img {
+      filter: brightness(0) saturate(0%) opacity(0.45);
+    }
+
+
+    /* CTA footer padding override — must come last to win over .g-cell */
+    .cta-footer-block .cta-footer-left {
+      padding: 72px 48px 72px 80px;
+    }
+    .cta-footer-block
+    
+
+    /* ── 24  PERFORMANCE HINTS ────────────────────────────────── */
+    .reveal    { will-change: opacity, transform; }
+
+  /* 960px — hide side nav, adjust wrappers */
+  
+
+  /* 860px — stack to single column */
+  
+
+  /* 768px — mobile layout */
+  
+
+  /* 560px — stack all grids */
+  
+
+  /* 480px — small screens */
+  
+
+  /* Reduced motion — accessibility */
+  
+
+  /* Print */
+
+  /* ── 14-16  RESPONSIVE / REDUCED-MOTION / PRINT ─── */
+
+  /* 960px — side nav hidden, wrapper padding */
+  @media (max-width: 960px) {
+  .side-nav { display: none; }
+
+  .section-wrap,
+      .hero-wrap {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+  .cta-footer-block .cta-footer-left,
+      .cta-footer-block .cta-footer-right {
+        padding: 48px 24px !important;
+      }
+  }
+
+  /* 860px — single column layout */
+  @media (max-width: 860px) {
+  .page-layout {
+        grid-template-columns: 1fr;
+        padding: 0 24px;
+      }
+      .side-nav { display: none; }
+      .geist-grid--4 { grid-template-columns: repeat(2, 1fr); }
+      .loop-wrap, .loop-detail-grid, .timeline { grid-template-columns: 1fr 1fr; }
+      .loop-step::after { display: none; }
+      .footer-top { grid-template-columns: 1fr; }
+      .data-grid { grid-template-columns: 1fr; }
+      .cta-section, footer { margin: 0 -24px; }
+
+  .cta-footer-wrap {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .cta-footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-footer-left,
+      .cta-footer-right {
+        padding: 48px 0;
+      }
+
+  .topbar-cta-full { display: none; }
+      .topbar-cta-short { display: inline; }
+  }
+
+  /* 768px — mobile */
+  @media (max-width: 768px) {
+  /* Hero */
+      .hero { padding: 64px 0 56px; }
+      .hero-headline { font-size: clamp(28px, 8vw, 40px); }
+      .hero-sub { font-size: 15px; }
+      .hero-meta { flex-direction: column; gap: 10px; align-items: flex-start; }
+
+      /* Section */
+      .section { padding: 56px 0; }
+      .section-wrap, .hero-wrap { padding-left: 20px; padding-right: 20px; }
+
+      /* Section title */
+      .section-title { font-size: clamp(24px, 7vw, 32px); max-width: 100%; }
+
+      /* Grids — all single column on mobile */
+      .geist-grid--2,
+      .geist-grid--3,
+      .geist-grid--4 { grid-template-columns: 1fr; }
+
+      .loop-wrap,
+      .loop-detail-grid,
+      .timeline { grid-template-columns: 1fr; }
+
+      .loop-step::after { display: none; }
+
+      /* Data grid */
+      .data-grid { grid-template-columns: 1fr; }
+
+      /* CTA footer */
+      .cta-footer-grid { grid-template-columns: 1fr; }
+      .cta-footer-wrap { padding-left: 20px; padding-right: 20px; }
+      .cta-footer-left,
+      .cta-footer-right { padding: 40px 0; }
+
+      /* UI screenshot */
+      .screenshot-block-inner { padding-left: 20px; padding-right: 20px; }
+      .ui-grid { grid-template-columns: 1fr; }
+      .ui-table-row { grid-template-columns: 1fr 1fr; font-size: 11px; }
+
+      /* Statement steps */
+      .statement-steps { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .step-divider { display: none; }
+
+      /* Signal table */
+      .signal-table { font-size: 12px; }
+      .signal-table td:first-child { width: 140px; }
+
+      /* Markets */
+      .markets-row { flex-wrap: wrap; gap: 4px; }
+      .market-item { border-right: none; padding-right: 12px; margin-right: 0; font-size: 13px; }
+
+      /* Topbar */
+      .topbar-inner { padding: 0 20px; }
+
+  .cta-footer-right {
+        border-left: none !important;
+        border-top: 0.5px solid var(--border-em) !important;
+      }
+  }
+
+  /* 560px — stack all grids */
+  @media (max-width: 560px) {
+  .geist-grid--2, .geist-grid--3, .geist-grid--4 { grid-template-columns: 1fr; }
+      .loop-wrap, .loop-detail-grid, .timeline { grid-template-columns: 1fr; }
+  }
+
+  /* 480px — small screens */
+  @media (max-width: 480px) {
+  .hero-headline { font-size: 26px; }
+      .section-title { font-size: 22px; }
+      .cta-title { font-size: 22px; }
+      .statement-text { font-size: 16px; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* Print */
+  @media print {
+  .topbar, .side-nav, body::before { display: none !important; }
+      body { background: #FAFAF7 !important; }
+      @page { size: A4; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  
+  <!-- ══ TOPBAR ══════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-inner">
+    <a href="https://moxso.com/" class="topbar-logo">
+      <div class="topbar-logo-svg" aria-label="Moxso"><svg height="22" width="120" viewBox="0 0 771 141" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M382.146 118.074C386.562 118.074 389.966 116.847 392.358 114.394C394.75 111.94 395.946 108.444 395.946 103.906V62.1376C395.946 49.2576 393.431 39.7203 388.402 33.5256C383.373 27.3309 375.706 24.2336 365.402 24.2336C358.901 24.2336 352.982 25.7363 347.646 28.7416C342.31 31.7469 338.231 35.9483 335.41 41.3456C333.079 35.5803 329.675 31.2869 325.198 28.4656C320.721 25.6443 315.293 24.2336 308.914 24.2336C302.658 24.2336 297.169 25.5523 292.446 28.1896C287.723 30.8269 284.013 34.4763 281.314 39.1376V38.5856C281.314 29.2629 276.775 24.6016 267.698 24.6016C258.621 24.6016 254.082 29.2629 254.082 38.5856V103.906C254.082 113.351 258.743 118.074 268.066 118.074C277.266 118.074 281.866 113.351 281.866 103.906V66.9216C281.866 60.1749 283.338 54.9616 286.282 51.2816C289.226 47.6016 293.335 45.7616 298.61 45.7616C303.026 45.7616 306.215 47.1416 308.178 49.9016C310.141 52.6616 311.122 57.0469 311.122 63.0576V103.906C311.122 108.444 312.349 111.94 314.802 114.394C317.255 116.847 320.69 118.074 325.106 118.074C334.306 118.074 338.906 113.351 338.906 103.906V66.9216C338.906 60.1749 340.378 54.9616 343.322 51.2816C346.266 47.6016 350.375 45.7616 355.65 45.7616C360.189 45.7616 363.409 47.1416 365.31 49.9016C367.211 52.6616 368.162 57.0469 368.162 63.0576V103.906C368.162 113.351 372.823 118.074 382.146 118.074ZM451.714 118.442C461.405 118.442 469.838 116.51 477.014 112.646C484.19 108.782 489.771 103.323 493.758 96.2696C497.745 89.2163 499.738 80.8443 499.738 71.1536C499.738 61.5856 497.745 53.2749 493.758 46.2216C489.771 39.1683 484.19 33.7403 477.014 29.9376C469.838 26.1349 461.405 24.2336 451.714 24.2336C442.023 24.2336 433.59 26.1349 426.414 29.9376C419.238 33.7403 413.687 39.1683 409.762 46.2216C405.837 53.2749 403.874 61.5856 403.874 71.1536C403.874 80.8443 405.837 89.2163 409.762 96.2696C413.687 103.323 419.238 108.782 426.414 112.646C433.59 116.51 442.023 118.442 451.714 118.442ZM437.362 91.2096C441.042 95.5029 445.826 97.6496 451.714 97.6496C457.602 97.6496 462.417 95.5029 466.158 91.2096C469.899 86.9163 471.77 80.2309 471.77 71.1536C471.77 62.1989 469.899 55.6056 466.158 51.3736C462.417 47.1416 457.602 45.0256 451.714 45.0256C445.826 45.0256 441.042 47.1416 437.362 51.3736C433.682 55.6056 431.842 62.1989 431.842 71.1536C431.842 80.2309 433.682 86.9163 437.362 91.2096ZM577.218 117.706C580.653 117.706 583.443 116.755 585.59 114.854C587.737 112.952 588.871 110.53 588.994 107.586C589.117 104.642 587.89 101.636 585.314 98.5696L561.762 69.8656L583.106 43.7376C585.682 40.6709 586.939 37.6656 586.878 34.7216C586.817 31.7776 585.743 29.3549 583.658 27.4536C581.573 25.5523 578.813 24.6016 575.378 24.6016C572.066 24.6016 569.306 25.1536 567.098 26.2576C564.89 27.3616 562.805 29.2016 560.842 31.7776L545.938 50.9136L531.218 31.7776C529.255 29.2016 527.17 27.3616 524.962 26.2576C522.754 25.1536 519.994 24.6016 516.682 24.6016C513.247 24.6016 510.487 25.5216 508.402 27.3616C506.317 29.2016 505.213 31.5936 505.09 34.5376C504.967 37.4816 506.194 40.5483 508.77 43.7376L530.114 69.8656L506.746 98.5696C504.293 101.636 503.097 104.642 503.158 107.586C503.219 110.53 504.293 112.952 506.378 114.854C508.463 116.755 511.223 117.706 514.658 117.706C517.97 117.706 520.699 117.092 522.846 115.866C524.993 114.639 527.047 112.86 529.01 110.53L545.938 89.1856L562.682 110.53C564.645 112.983 566.761 114.792 569.03 115.958C571.299 117.123 574.029 117.706 577.218 117.706ZM661.69 110.53C654.33 115.804 644.639 118.442 632.618 118.442C627.221 118.442 621.67 117.951 615.966 116.97C610.262 115.988 605.079 114.332 600.418 112.002C597.351 110.407 595.358 108.383 594.438 105.93C593.518 103.476 593.487 101.084 594.346 98.7536C595.205 96.4229 596.738 94.6749 598.946 93.5096C601.154 92.3443 603.73 92.3749 606.674 93.6016C611.703 95.6869 616.334 97.1589 620.566 98.0176C624.798 98.8763 628.877 99.3056 632.802 99.3056C637.954 99.3056 641.757 98.4776 644.21 96.8216C646.663 95.1656 647.89 92.9883 647.89 90.2896C647.89 85.9963 644.762 83.2976 638.506 82.1936L619.186 78.6976C611.458 77.3483 605.57 74.5883 601.522 70.4176C597.474 66.2469 595.45 60.7883 595.45 54.0416C595.45 47.9083 597.167 42.6336 600.602 38.2176C604.037 33.8016 608.759 30.3669 614.77 27.9136C620.781 25.4603 627.711 24.2336 635.562 24.2336C646.357 24.2336 655.925 26.3189 664.266 30.4896C667.087 31.8389 668.835 33.7403 669.51 36.1936C670.185 38.6469 670.031 41.0389 669.05 43.3696C668.069 45.7003 666.474 47.4483 664.266 48.6136C662.058 49.7789 659.421 49.6869 656.354 48.3376C652.306 46.4976 648.626 45.1789 645.314 44.3816C642.002 43.5843 638.874 43.1856 635.93 43.1856C630.41 43.1856 626.423 44.0749 623.97 45.8536C621.517 47.6323 620.29 49.8709 620.29 52.5696C620.29 56.8629 623.173 59.5616 628.938 60.6656L648.258 64.1616C656.231 65.5109 662.303 68.1789 666.474 72.1656C670.645 76.1523 672.73 81.5803 672.73 88.4496C672.73 97.895 669.05 105.255 661.69 110.53ZM722.978 118.442C732.669 118.442 741.102 116.51 748.278 112.646C755.454 108.782 761.035 103.323 765.022 96.2696C769.009 89.2163 771.002 80.8443 771.002 71.1536C771.002 61.5856 769.009 53.2749 765.022 46.2216C761.035 39.1683 755.454 33.7403 748.278 29.9376C741.102 26.1349 732.669 24.2336 722.978 24.2336C713.287 24.2336 704.854 26.1349 697.678 29.9376C690.502 33.7403 684.951 39.1683 681.026 46.2216C677.101 53.2749 675.138 61.5856 675.138 71.1536C675.138 80.8443 677.101 89.2163 681.026 96.2696C684.951 103.323 690.502 108.782 697.678 112.646C704.854 116.51 713.287 118.442 722.978 118.442ZM708.626 91.2096C712.306 95.5029 717.09 97.6496 722.978 97.6496C728.866 97.6496 733.681 95.5029 737.422 91.2096C741.163 86.9163 743.034 80.2309 743.034 71.1536C743.034 62.1989 741.163 55.6056 737.422 51.3736C733.681 47.1416 728.866 45.0256 722.978 45.0256C717.09 45.0256 712.306 47.1416 708.626 51.3736C704.946 55.6056 703.106 62.1989 703.106 71.1536C703.106 80.2309 704.946 86.9163 708.626 91.2096Z" fill="#222222"></path>
+<mask id="mask0_70_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="132" height="141">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0.005 69.6376C0.189 58.5386 -0.019 46.9906 0.849 35.9466C1.853 23.1686 5.266 10.8486 17.236 3.93762C29.207 -2.97338 41.582 0.230616 53.15 5.75062C63.148 10.5206 73.045 16.4756 82.749 21.8656L83.094 22.0566L83.432 22.2596C85.708 23.6246 88.017 24.9826 90.339 26.3446C82.95 30.6806 75.438 35.0616 68.491 39.8356C67.399 40.5856 66.325 41.3556 65.276 42.1486C61.421 39.9906 57.569 37.8236 53.708 35.6756C49.817 33.5166 45.874 31.3376 41.857 29.4216C39.528 28.3116 32.952 25.1506 30.351 26.6516C27.75 28.1526 27.199 35.4286 26.997 38.0016C26.649 42.4396 26.564 46.9426 26.488 51.3926C26.382 57.6186 26.334 63.8456 26.231 69.9936C26.334 76.2196 26.382 82.4466 26.488 88.6726C26.564 93.1226 26.649 97.6266 26.997 102.064C27.199 104.635 27.75 111.912 30.351 113.414C32.952 114.916 39.529 111.755 41.857 110.643C45.874 108.727 49.817 106.548 53.708 104.389C59.153 101.368 64.569 98.2956 69.945 95.3096C75.286 92.1076 80.654 88.9536 85.993 85.7486C89.808 83.4576 93.666 81.1326 97.335 78.6116C99.461 77.1506 105.487 73.0356 105.487 70.0316C105.487 67.0276 99.461 62.9126 97.335 61.4516C95.058 59.8876 92.709 58.3976 90.34 56.9446C91.787 56.0566 93.24 55.1836 94.687 54.3156C100.025 51.1106 105.394 47.9556 110.667 44.7926C112.248 43.9146 113.826 43.0326 115.403 42.1486C124.508 49.0276 131.715 57.6416 131.715 70.0316C131.715 83.8536 122.752 92.9696 112.188 100.228C103.058 106.501 92.953 112.095 83.433 117.804L83.095 118.006L82.75 118.198C73.046 123.589 63.149 129.543 53.151 134.313C41.583 139.832 29.208 143.037 17.237 136.126C5.267 129.215 1.854 116.895 0.85 104.117C-0.0179999 93.0736 0.19 81.5246 0.006 70.4256L0 70.0306L0.005 69.6376Z" fill="white"></path>
+</mask>
+<g mask="url(#mask0_70_2)">
+<rect x="-0.019043" y="-2.97339" width="131.733" height="146.011" fill="url(#paint0_linear_70_2)"></rect>
+</g>
+<mask id="mask1_70_2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="48" y="0" width="133" height="141">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M180.672 69.6376C180.488 58.5386 180.697 46.9906 179.829 35.9466C178.825 23.1686 175.412 10.8486 163.441 3.93762C151.471 -2.97338 139.096 0.230616 127.527 5.75062C117.529 10.5206 107.632 16.4756 97.928 21.8656L97.583 22.0566L97.245 22.2596C87.724 27.9676 77.62 33.5626 68.49 39.8356C57.926 47.0936 48.963 56.2096 48.963 70.0316C48.963 82.4216 56.169 91.0326 65.275 97.9146V97.9146C66.834 97.0406 68.391 96.1716 69.943 95.3086C75.284 92.1066 80.652 88.9526 85.991 85.7476C87.438 84.8786 88.891 84.0056 90.338 83.1176C87.97 81.6646 85.62 80.1756 83.343 78.6106C81.217 77.1496 75.191 73.0346 75.191 70.0306C75.191 67.0266 81.217 62.9116 83.343 61.4506C87.011 58.9296 90.869 56.6046 94.685 54.3146C100.023 51.1096 105.392 47.9546 110.665 44.7916C116.108 41.7676 121.525 38.6956 126.97 35.6746C130.861 33.5156 134.804 31.3366 138.821 29.4206C141.15 28.3106 147.726 25.1496 150.327 26.6506C152.928 28.1516 153.479 35.4276 153.681 38.0006C154.029 42.4386 154.114 46.9416 154.19 51.3916C154.296 57.6176 154.344 63.8446 154.447 69.9926C154.344 76.2186 154.296 82.4456 154.19 88.6716C154.114 93.1216 154.029 97.6256 153.681 102.063C153.478 104.634 152.928 111.911 150.327 113.413C147.726 114.915 141.149 111.754 138.821 110.642C134.804 108.726 130.861 106.547 126.97 104.388C123.097 102.237 119.24 100.064 115.402 97.9146C114.352 98.7076 113.278 99.4776 112.187 100.228C105.24 105.002 97.728 109.382 90.339 113.719C92.661 115.081 94.97 116.44 97.246 117.804L97.584 118.006L97.929 118.198C107.633 123.589 117.53 129.543 127.528 134.313C139.096 139.832 151.471 143.037 163.442 136.126C175.413 129.215 178.826 116.895 179.83 104.117C180.698 93.0736 180.49 81.5246 180.673 70.4256L180.679 70.0306L180.672 69.6376Z" fill="white"></path>
+</mask>
+<g mask="url(#mask1_70_2)">
+<rect x="48.964" y="-2.97339" width="131.733" height="146.011" fill="url(#paint1_linear_70_2)"></rect>
+</g>
+<defs>
+<lineargradient id="paint0_linear_70_2" x1="136.472" y1="156.737" x2="136.472" y2="0.177405" gradientUnits="userSpaceOnUse">
+<stop stop-color="#0287D0"></stop>
+<stop offset="0.45" stop-color="#8A5FEE"></stop>
+<stop offset="1" stop-color="#E05EC8"></stop>
+</lineargradient>
+<lineargradient id="paint1_linear_70_2" x1="185.785" y1="157.367" x2="185.785" y2="0.0773062" gradientUnits="userSpaceOnUse">
+<stop stop-color="#BE43CC"></stop>
+<stop offset="0.49" stop-color="#FF5496"></stop>
+<stop offset="1" stop-color="#FFBB33"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+    </a>
+    <a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#cta" class="topbar-cta"><span class="topbar-cta-full">Talk to our technical team</span><span class="topbar-cta-short">Technical session</span></a>
+    </div>
+  </header>
+
+    <!-- STICKY SIDE NAV -->
+    
+  <!-- ══ SIDE NAV (fixed, JS-controlled) ════════════════════ -->
+  <nav class="side-nav" aria-label="Page sections">
+      <div class="side-nav-inner">
+        <div class="side-nav-label">On this page</div>
+        <ul class="side-nav-list">
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#risk-framework" class="">Risk Framework</a></li>
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#closed-loop" class="">The Closed Loop</a></li>
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#signals" class="">Signal Types</a></li>
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#integrations" class="">Integrations</a></li>
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#data-privacy" class="">Data &amp; Privacy</a></li>
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#compliance" class="">Security &amp; Compliance</a></li>
+        <li><a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#deployment" class="">Deployment</a></li>
+        </ul>
+      </div>
+    </nav>
+
+  <div class="page-layout">
+
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- HERO -->
+      
+  <!-- ══ HERO ════════════════════════════════════════════════ -->
+  
+  <!-- ── SECTION: TOP ── -->
+  <section class="hero" id="top" data-theme="dark"><div class="hero-wrap">
+        <span class="eyebrow">Technical Architecture &amp; Integration</span>
+        <h1 class="hero-headline">What Moxso actually does. <em>And how it fits into your stack.</em></h1>
+        <p class="hero-sub">This page is for the people responsible for evaluating, deploying, and maintaining Moxso. It covers the risk framework the platform runs on, how signals are captured and processed, what integrations are required, and what deployment actually looks like. No marketing language — just the architecture.</p>
+        <div class="hero-meta">
+          <span class="hero-meta-item">
+            <span class="hero-meta-dot live"></span>
+            16 structured risk categories
+          </span>
+          <span class="hero-meta-item">
+            <span class="hero-meta-dot"></span>
+            MITRE ATT&amp;CK aligned
+          </span>
+          <span class="hero-meta-item">
+            <span class="hero-meta-dot"></span>
+            ISO/IEC 27001:2022 certified
+          </span>
+          <span class="hero-meta-item">
+            <span class="hero-meta-dot"></span>
+            EU data residency
+          </span>
+        </div>
+      </div></section>
+
+      <!-- CENTERED STATEMENT -->
+      <div class="centered-statement">
+        <div class="section-wrap">
+          <p class="statement-text">Moxso maps human behaviour across 16 structured risk categories — continuously, automatically, and in the context of a live threat landscape. This is what it looks like under the hood.</p>
+          <div class="statement-steps">
+            <span class="step-item"><span class="step-num">01</span> Capture signals</span>
+            <span class="step-divider">→</span>
+            <span class="step-item"><span class="step-num">02</span> Build intelligence</span>
+            <span class="step-divider">→</span>
+            <span class="step-item"><span class="step-num">03</span> Trigger action</span>
+            <span class="step-divider">→</span>
+            <span class="step-item"><span class="step-num">04</span> Produce proof</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: RISK FRAMEWORK -->
+      
+  <!-- ── SECTION: RISK FRAMEWORK ── -->
+  <section class="section" id="risk-framework"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">01 — Risk Framework</div>
+          <p class="section-qualifier">Aligned with MITRE ATT&amp;CK and NIST CSF</p>
+          <h2 class="section-title">A structured model for human risk.</h2>
+          <p class="section-body">Moxso organises human risk across three core dimensions — Behavioral Risk (what people do), Threat Exposure (what targets them), and Inherent Risk (who they are structurally). These map to 16 defined risk categories, aligned with MITRE ATT&amp;CK and NIST CSF. Every score is quantifiable and auditable. This is what makes risk comparable over time and defensible at board level.</p>
+        </div>
+
+        <div class="geist-grid geist-grid--4 reveal-group">
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.01</div>
+            <div class="cell-title">Communication Security</div>
+            <div class="cell-body">How people use email, chat, and collaboration tools — patterns, exposures, risky behaviors.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.02</div>
+            <div class="cell-title">Engagement &amp; Awareness</div>
+            <div class="cell-body">Participation and measurable retention from security education over time.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.03</div>
+            <div class="cell-title">Data Protection</div>
+            <div class="cell-body">How people handle, share, store, and transfer sensitive information.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.04</div>
+            <div class="cell-title">Identity &amp; Access Risk</div>
+            <div class="cell-body">Authentication methods, permission creep, and access behavior patterns.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.05</div>
+            <div class="cell-title">Web &amp; Cloud Usage</div>
+            <div class="cell-body">Internet and cloud service access patterns, shadow IT, risky service usage.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.06</div>
+            <div class="cell-title">Endpoint &amp; Device Security</div>
+            <div class="cell-body">Device posture, configuration compliance, and physical condition indicators.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.07</div>
+            <div class="cell-title">Physical Security</div>
+            <div class="cell-body">Human interaction with physical spaces, access points, and physical assets.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.08</div>
+            <div class="cell-title">Social Engineering Risk</div>
+            <div class="cell-body">Susceptibility to fear, trust, urgency, and overconfidence manipulation tactics.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.09</div>
+            <div class="cell-title">Incident Response Readiness</div>
+            <div class="cell-body">Reporting behavior, escalation patterns, and participation in IR processes.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.10</div>
+            <div class="cell-title">Remote Work Risk</div>
+            <div class="cell-body">Security behavior outside traditional office environments and network controls.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.11</div>
+            <div class="cell-title">Digital Exposure Risk</div>
+            <div class="cell-body">Publicly available sensitive personal or professional information online.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.12</div>
+            <div class="cell-title">Mobile Security</div>
+            <div class="cell-body">Use and security posture of smartphones and tablets used for work.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.13</div>
+            <div class="cell-title">Third-Party Risk</div>
+            <div class="cell-body">Risk introduced through vendors, contractors, and partner access patterns.</div>
+          </div>
+          <div class="g-cell reveal is-visible">
+            <div class="cell-code">R.14</div>
+            <div class="cell-title">Policy &amp; Regulatory Compliance</div>
+            <div class="cell-body">Adherence to cybersecurity rules, standards, and legal obligations over time.</div>
+          </div>
+          <div class="g-cell g-cell--accent-top reveal is-visible">
+            <div class="cell-code">R.15</div>
+            <div class="cell-title">Human Use of AI</div>
+            <div class="cell-body">How individuals interact with and apply AI systems at work — a new and growing risk surface.</div>
+          </div>
+          <div class="g-cell g-cell--accent-top reveal is-visible">
+            <div class="cell-code">R.16</div>
+            <div class="cell-title">Agentic AI</div>
+            <div class="cell-body">How organisations govern autonomous AI agents operating within the enterprise environment.</div>
+          </div>
+        </div>
+
+        <div class="note note--info" style="margin-top: 24px;">
+          <svg class="note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1"></circle>
+            <path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span>R.15 and R.16 are not available in any legacy SAT platform. They exist in Moxso because the system treats human behavior as an intelligence layer — not a training problem. These categories are category-defining, not optional add-ons.</span>
+        </div>
+      </div></section>
+
+      <!-- PRODUCT UI SCREENSHOT -->
+      <div class="screenshot-block">
+        <div class="screenshot-block-inner">
+          <div class="screenshot-label">Moxso — Human Risk Dashboard</div>
+          <div class="screenshot-ui">
+            <div class="ui-topbar">
+              <div class="ui-dot"></div>
+              <div class="ui-dot"></div>
+              <div class="ui-dot"></div>
+              <span class="ui-breadcrumb">MOXSO · RISK OVERVIEW · Q1 2025</span>
+            </div>
+            <div class="ui-grid">
+              <div class="ui-card ui-card-accent">
+                <div class="ui-card-label">Human Resilience Score</div>
+                <div class="ui-card-value">74<span style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.3)">/100</span></div>
+                <div class="ui-card-sub">↑ +12 points this quarter</div>
+              </div>
+              <div class="ui-card ui-card-warn">
+                <div class="ui-card-label">High-Risk Employees</div>
+                <div class="ui-card-value">23</div>
+                <div class="ui-card-sub">8% of total workforce</div>
+              </div>
+              <div class="ui-card ui-card-success">
+                <div class="ui-card-label">Interventions This Month</div>
+                <div class="ui-card-value">147</div>
+                <div class="ui-card-sub">Triggered by behaviour, not calendar</div>
+              </div>
+            </div>
+            <div>
+              <div class="ui-table-row">
+                <span>Employee</span><span>Risk Score</span><span>Category</span><span>Status</span>
+              </div>
+              <div class="ui-table-row highlight">
+                <span style="color:var(--fg-inverse);font-weight:500;">Sarah Chen · Finance</span>
+                <span style="color:var(--fg-inverse);">94 / 100</span>
+                <span>R.08 Social Engineering</span>
+                <span><span class="ui-risk-pill ui-risk-high">Critical</span></span>
+              </div>
+              <div class="ui-table-row">
+                <span>Marcus Johansson · IT</span><span>61 / 100</span><span>R.04 Identity &amp; Access</span>
+                <span><span class="ui-risk-pill ui-risk-med">Elevated</span></span>
+              </div>
+              <div class="ui-table-row">
+                <span>Anna Lindqvist · Legal</span><span>31 / 100</span><span>R.03 Data Protection</span>
+                <span><span class="ui-risk-pill ui-risk-low">Low</span></span>
+              </div>
+              <div class="ui-table-row">
+                <span>Tom Eriksen · Engineering</span><span>28 / 100</span><span>R.05 Web &amp; Cloud</span>
+                <span><span class="ui-risk-pill ui-risk-low">Low</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKETS STRIP -->
+      <div class="markets-strip">
+        <div class="section-wrap">
+          <div class="markets-label">Deployed across</div>
+          <div class="markets-row">
+            <span class="market-item">🇩🇰 Denmark</span>
+            <span class="market-item">🇸🇪 Sweden</span>
+            <span class="market-item">🇳🇴 Norway</span>
+            <span class="market-item">🇫🇮 Finland</span>
+            <span class="market-item">🇳🇱 Netherlands</span>
+            <span class="market-item">🇵🇱 Poland</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: CLOSED LOOP -->
+      
+  <!-- ── SECTION: CLOSED LOOP ── -->
+  <section class="section" id="closed-loop" data-theme="dark"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">02 — The Closed Loop</div>
+          <p class="section-qualifier">Continuous. No manual orchestration required.</p>
+          <h2 class="section-title">From signals to proof.</h2>
+          <p class="section-body">Moxso runs a continuous closed loop. Behavior is captured as signals, enriched against the Risk Framework and external threat intelligence, converted into individual risk profiles, acted on through training or triggered intervention, and then measured as outcomes. New behavior from those outcomes feeds back as new signals. The loop never stops.</p>
+        </div>
+
+        <div class="loop-wrap reveal-group">
+          <div class="loop-step reveal is-visible">
+            <div class="loop-step-num">01</div>
+            <div class="loop-step-title">Signals</div>
+            <div class="loop-step-body">Behavior captured continuously from phishing interactions, training engagement, reporting patterns, and connected controls.</div>
+          </div>
+          <div class="loop-step reveal is-visible">
+            <div class="loop-step-num">02</div>
+            <div class="loop-step-title">Intelligence</div>
+            <div class="loop-step-body">Signals enriched with Risk Framework scoring and OSINT engine — live threat landscape mapped to internal behavior.</div>
+          </div>
+          <div class="loop-step reveal is-visible">
+            <div class="loop-step-num">03</div>
+            <div class="loop-step-title">Risk Profiles</div>
+            <div class="loop-step-body">Individual and organisational profiles built dynamically. Updated on every new signal. Never static.</div>
+          </div>
+          <div class="loop-step reveal is-visible">
+            <div class="loop-step-num">04</div>
+            <div class="loop-step-title">Action</div>
+            <div class="loop-step-body">Two execution paths: continuous adaptive training (system-scheduled) and behavior-triggered intervention (event-driven).</div>
+          </div>
+          <div class="loop-step reveal is-visible">
+            <div class="loop-step-num">05</div>
+            <div class="loop-step-title">Proof</div>
+            <div class="loop-step-body">Measurable risk reduction documented as a Human Resilience Score — a trajectory over time, not a snapshot.</div>
+          </div>
+        </div>
+
+        <div class="loop-detail-grid">
+          <div class="loop-detail">
+            <div class="loop-detail-label">Training path</div>
+            <div class="loop-detail-value">Scheduled by system based on current risk profile. Not by a human calendar.</div>
+          </div>
+          <div class="loop-detail">
+            <div class="loop-detail-label">Intervention path</div>
+            <div class="loop-detail-value">Triggered by a behavioral event. Enrich → select → assign → update score.</div>
+          </div>
+          <div class="loop-detail">
+            <div class="loop-detail-label">OSINT engine</div>
+            <div class="loop-detail-value">Live external threat intelligence mapped continuously to internal signals.</div>
+          </div>
+          <div class="loop-detail">
+            <div class="loop-detail-label">Risk score update</div>
+            <div class="loop-detail-value">Every signal updates the individual profile in real time. No scheduled recalculation.</div>
+          </div>
+          <div class="loop-detail">
+            <div class="loop-detail-label">Board output</div>
+            <div class="loop-detail-value">Human Resilience Score — a single defensible number with a trajectory the board can read.</div>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- SECTION 3: SIGNALS -->
+      
+  <!-- ── SECTION: SIGNALS ── -->
+  <section class="section" id="signals"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">03 — Signal Types</div>
+          <h2 class="section-title">What the system captures.</h2>
+          <p class="section-body">Moxso processes signals across six categories. Each signal type feeds one or more risk dimensions in the framework. The system does not require manual tagging or curation — signal enrichment is automated against the Risk Framework and OSINT inputs.</p>
+        </div>
+
+        <table class="signal-table">
+          <thead>
+            <tr>
+              <th>Signal type</th>
+              <th>What it captures</th>
+              <th>Risk categories fed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Phishing interactions</td>
+              <td>Clicks, non-clicks, reports, response time, repeated patterns across simulation campaigns</td>
+              <td>R.01, R.08, R.09</td>
+            </tr>
+            <tr>
+              <td>Training engagement</td>
+              <td>Completion behavior, time-on-task, knowledge assessment results, re-engagement patterns</td>
+              <td>R.02, R.14</td>
+            </tr>
+            <tr>
+              <td>Breach exposure data</td>
+              <td>Individual and organisational credential exposures from external breach monitoring</td>
+              <td>R.04, R.11</td>
+            </tr>
+            <tr>
+              <td>OSINT threat inputs</td>
+              <td>Live phishing trends, industry-specific targeting patterns, regulatory changes — mapped to R.01–R.16</td>
+              <td>All categories</td>
+            </tr>
+            <tr>
+              <td>Behavioral patterns</td>
+              <td>Longitudinal risk trajectory per individual — how behavior changes over time across the framework</td>
+              <td>R.01–R.16</td>
+            </tr>
+            <tr>
+              <td>Connected control outputs</td>
+              <td>API outputs from integrated enterprise security tools — endpoint, identity, SIEM</td>
+              <td>R.04, R.05, R.06</td>
+            </tr>
+          </tbody>
+        </table>
+      </div></section>
+
+      <!-- SECTION 4: INTEGRATIONS -->
+      
+  <!-- ── SECTION: INTEGRATIONS ── -->
+  <section class="section" id="integrations" data-theme="accent"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">04 — Integrations &amp; Stack</div>
+          <p class="section-qualifier">Two required. Everything else is optional.</p>
+          <h2 class="section-title">What it connects to.<br>What it requires.</h2>
+          <p class="section-body">Moxso requires two integrations to function. Everything else is optional and extends capability. The required integrations handle identity provisioning and phishing simulation delivery — both are standard enterprise connectors with documented setup paths and typical completion times measured in hours, not weeks.</p>
+        </div>
+
+        <div class="integration-section">
+          <div class="integration-label">Required <span class="req-marker">must have</span></div>
+          <div class="geist-grid geist-grid--2">
+            <div class="g-cell g-cell--padded g-cell--accent-top">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                <div class="int-badge int-badge--required">Microsoft Entra ID / Azure AD</div>
+                <div class="req-marker">Required</div>
+              </div>
+              <div class="cell-title">Identity &amp; directory</div>
+              <div class="cell-body" style="margin-top:8px;">SSO and automated user provisioning. Enables: automatic user sync from directory, role-based risk profiling, organisational structure mapping for department-level analysis, and onboarding/offboarding triggers.<br><br>Setup time: typically 2–4 hours with IT admin access.</div>
+            </div>
+            <div class="g-cell g-cell--padded g-cell--accent-top">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                <div class="int-badge int-badge--required">Microsoft 365 or Google Workspace</div>
+                <div class="req-marker">Required</div>
+              </div>
+              <div class="cell-title">Email &amp; communication layer</div>
+              <div class="cell-body" style="margin-top:8px;">Phishing simulation delivery and behavioral signal capture from email interaction patterns. Enables: realistic phishing scenarios delivered from trusted send infrastructure, signal capture from click and report events, and integration with email reporting buttons.<br><br>Setup time: typically 1–3 hours with Exchange or Google admin access.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="integration-section">
+          <div class="integration-label">Optional <span class="opt-marker">extends capability</span></div>
+          <div class="geist-grid geist-grid--3">
+            <div class="g-cell g-cell--padded reveal is-visible">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                <div class="int-badge">SIEM &amp; Security tools</div>
+                <div class="opt-marker">Optional</div>
+              </div>
+              <div class="cell-title">Push risk intelligence outbound</div>
+              <div class="cell-body" style="margin-top:8px;">Moxso can push risk scores, intervention records, and proof artifacts to existing SIEM or security tooling via API. For organisations that want Moxso's output visible inside their existing security operations stack.</div>
+            </div>
+            <div class="g-cell g-cell--padded reveal is-visible">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                <div class="int-badge">HRIS</div>
+                <div class="opt-marker">Optional</div>
+              </div>
+              <div class="cell-title">Role-based profiling at scale</div>
+              <div class="cell-body" style="margin-top:8px;">HRIS connection enables department-level risk segmentation, automatic profile updates on role changes, and onboarding-triggered baseline assessments. Most useful for organisations with 500+ employees or significant role churn.</div>
+            </div>
+            <div class="g-cell g-cell--padded reveal is-visible">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                <div class="int-badge">Drata / Vanta</div>
+                <div class="opt-marker">Optional</div>
+              </div>
+              <div class="cell-title">Compliance evidence integration</div>
+              <div class="cell-body" style="margin-top:8px;">Native integration with Drata and Vanta compliance platforms. Moxso risk data feeds directly into compliance evidence packages — audit-ready documentation without manual export or reconciliation.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note note--info">
+          <svg class="note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1"></circle>
+            <path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span>Moxso does not require agents, endpoint software, or network-level access. The integration footprint is deliberately minimal — identity, email, and optionally HRIS. Everything else is additive.</span>
+        </div>
+      </div></section>
+
+      <!-- SECTION 5: DATA & PRIVACY -->
+      
+  <!-- ── SECTION: DATA PRIVACY ── -->
+  <section class="section" id="data-privacy" data-theme="dark"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">05 — Data Architecture &amp; Privacy</div>
+          <h2 class="section-title">Where data lives.<br>How it's processed.</h2>
+          <p class="section-body">Moxso processes human behavioural data entirely within EU infrastructure. This is a design decision, not a configuration option. Data residency, processing boundaries, and retention policy are documented below for DPO review and procurement evaluation.</p>
+        </div>
+
+        <div class="data-grid">
+          <div class="data-cell">
+            <div class="data-cell-label">Primary infrastructure</div>
+            <div class="data-cell-title">DigitalOcean — EU region</div>
+            <div class="data-cell-body">All primary data processing and storage occurs within DigitalOcean EU infrastructure. No primary data leaves EU jurisdiction under any operational condition.</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Secondary processing</div>
+            <div class="data-cell-title">AWS EMEA SARL</div>
+            <div class="data-cell-body">Secondary processing infrastructure via AWS EMEA SARL. Covered under EU data protection framework. No US-region processing of customer data.</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Operational tooling</div>
+            <div class="data-cell-title">Google Workspace EU · HubSpot</div>
+            <div class="data-cell-body">Operational tooling runs on EU-configured Google Workspace. HubSpot used for customer data management under standard data processing agreement.</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Continuous monitoring</div>
+            <div class="data-cell-title">Vanta</div>
+            <div class="data-cell-body">Continuous compliance monitoring via Vanta. Real-time evidence collection for ISO 27001, SOC 2, and GDPR obligations. Audit-ready evidence available on request.</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Personal data processed</div>
+            <div class="data-cell-title">Behavioural signals only</div>
+            <div class="data-cell-body">Moxso processes behavioural signal data tied to employee identifiers. No content scanning, no keystroke logging, no surveillance. Legal basis: legitimate interest in organisational security under GDPR Article 6(1)(f).</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Subprocessors</div>
+            <div class="data-cell-title">Full list available on request</div>
+            <div class="data-cell-body">Complete subprocessor registry provided on request as part of procurement documentation. All subprocessors operate under appropriate data processing agreements and EU adequacy frameworks.</div>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- SECTION 6: COMPLIANCE -->
+      
+  <!-- ── SECTION: COMPLIANCE ── -->
+  <section class="section" id="compliance"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">06 — Security &amp; Compliance Posture</div>
+          <h2 class="section-title">The infrastructure<br>it runs on.</h2>
+          <p class="section-body">Moxso is ISO/IEC 27001:2022 certified — the current standard, not the 2013 predecessor. GDPR compliant across all six operating markets. SSO enforced via Microsoft Entra ID. Penetration testing conducted on a regular cadence with results available under NDA for enterprise evaluations.</p>
+        </div>
+
+        <div class="geist-grid geist-grid--3">
+          <div class="g-cell g-cell--padded reveal is-visible">
+            <div class="cell-code">CERTIFICATION</div>
+            <div class="cell-title">ISO/IEC 27001:2022</div>
+            <div class="cell-body">Certified to the current 2022 standard — not the 2013 version. Covers information security management across the full platform and operational infrastructure. Certificate available on request.</div>
+          </div>
+          <div class="g-cell g-cell--padded reveal is-visible">
+            <div class="cell-code">REGULATION</div>
+            <div class="cell-title">GDPR &amp; CCPA Compliant</div>
+            <div class="cell-body">Full GDPR compliance across all six operating markets. CCPA compliance for US-adjacent data subjects. Data processing agreements available as standard procurement documentation.</div>
+          </div>
+          <div class="g-cell g-cell--padded reveal is-visible">
+            <div class="cell-code">ACCESS CONTROL</div>
+            <div class="cell-title">SSO via Microsoft Entra ID</div>
+            <div class="cell-body">Single sign-on enforced via Microsoft Entra ID across all Moxso interfaces. No standalone password access to the platform. Access provisioning and deprovisioning automated through directory sync.</div>
+          </div>
+          <div class="g-cell g-cell--padded reveal is-visible">
+            <div class="cell-code">TESTING</div>
+            <div class="cell-title">Regular Penetration Testing</div>
+            <div class="cell-body">Penetration testing conducted on a regular cadence by an independent third party. Results and remediation documentation available under NDA for enterprise security teams conducting due diligence.</div>
+          </div>
+          <div class="g-cell g-cell--padded reveal is-visible">
+            <div class="cell-code">MONITORING</div>
+            <div class="cell-title">Continuous via Vanta</div>
+            <div class="cell-body">Real-time compliance monitoring across security controls, access policies, and data handling practices. Evidence collection is continuous — not point-in-time. Audit trail available at any time.</div>
+          </div>
+          <div class="g-cell g-cell--padded reveal is-visible">
+            <div class="cell-code">INCIDENT RESPONSE</div>
+            <div class="cell-title">Documented SLA</div>
+            <div class="cell-body">Incident response SLA and escalation procedures documented as part of enterprise onboarding. Notification obligations under NIS2 and GDPR breach reporting requirements are covered.</div>
+          </div>
+        </div>
+
+        <div class="compliance-row">
+          <span class="compliance-badge">ISO/IEC 27001:2022</span>
+          <span class="compliance-badge">GDPR Compliant</span>
+          <span class="compliance-badge">CCPA Compliant</span>
+          <span class="compliance-badge">APA Compliant</span>
+          <span class="compliance-badge">EU Data Residency</span>
+          <span class="compliance-badge">SSO via Entra ID</span>
+          <span class="compliance-badge">Vanta Monitored</span>
+          <span class="compliance-badge">MITRE ATT&amp;CK Aligned</span>
+        </div>
+      </div></section>
+
+      <!-- SECTION 7: DEPLOYMENT -->
+      
+  <!-- ── SECTION: DEPLOYMENT ── -->
+  <section class="section" id="deployment" data-theme="dark"><div class="section-wrap">
+        <div class="section-header reveal is-visible">
+          <div class="section-label">07 — Deployment</div>
+          <p class="section-qualifier">From zero to board-ready output in 30 days.</p>
+          <h2 class="section-title">What deployment<br>actually looks like.</h2>
+          <p class="section-body">A standard Moxso deployment is complete within four weeks. The first two weeks are integration and configuration — handled jointly with Moxso's technical onboarding team. Weeks three and four are live signal capture and first output review. The IT team's active involvement is concentrated in week one.</p>
+        </div>
+
+        <div class="timeline reveal-group">
+          <div class="timeline-step timeline-step--accent reveal is-visible">
+            <div class="timeline-week">Week 1</div>
+            <div class="timeline-title">Integration &amp; Configuration</div>
+            <ul class="timeline-tasks">
+              <li>Microsoft Entra ID / Azure AD connection</li>
+              <li>User directory sync and provisioning</li>
+              <li>M365 or Google Workspace email setup</li>
+              <li>SSO configuration and access testing</li>
+              <li>Organisational structure mapping</li>
+            </ul>
+            <div class="timeline-outcome">IT team active involvement: 4–8 hours total</div>
+          </div>
+          <div class="timeline-step reveal is-visible">
+            <div class="timeline-week">Week 2</div>
+            <div class="timeline-title">Baseline &amp; First Signals</div>
+            <ul class="timeline-tasks">
+              <li>Initial phishing simulation campaign</li>
+              <li>Baseline risk profiles populating</li>
+              <li>OSINT engine mapping to internal structure</li>
+              <li>First risk category scores generated</li>
+              <li>Admin dashboard access configured</li>
+            </ul>
+            <div class="timeline-outcome">First risk signals visible in platform</div>
+          </div>
+          <div class="timeline-step reveal is-visible">
+            <div class="timeline-week">Weeks 3–4</div>
+            <div class="timeline-title">Live Operation</div>
+            <ul class="timeline-tasks">
+              <li>Continuous adaptive training active</li>
+              <li>Behavior-triggered interventions live</li>
+              <li>Individual risk profiles updating</li>
+              <li>Onboarding review with Moxso team</li>
+              <li>Optional: HRIS and SIEM integration</li>
+            </ul>
+            <div class="timeline-outcome">System operating fully autonomously</div>
+          </div>
+          <div class="timeline-step reveal is-visible">
+            <div class="timeline-week">Day 30</div>
+            <div class="timeline-title">First Board-Ready Output</div>
+            <ul class="timeline-tasks">
+              <li>Human Resilience Score established</li>
+              <li>Risk trajectory baseline set</li>
+              <li>Department-level risk breakdown available</li>
+              <li>NIS2 evidence package ready for review</li>
+              <li>First board report exportable</li>
+            </ul>
+            <div class="timeline-outcome">Defensible risk number available for board</div>
+          </div>
+        </div>
+
+        <div class="note note--info" style="margin-top: 24px;">
+          <svg class="note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1"></circle>
+            <path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          </svg>
+          <span>After week one, the platform operates without requiring IT involvement. There is no ongoing administration burden. User provisioning, training assignment, intervention triggers, and risk score updates are all system-driven.</span>
+        </div>
+      </div></section>
+
+      <!-- CTA + FOOTER — unified dark section -->
+      
+  <!-- ══ CTA + FOOTER ════════════════════════════════════════ -->
+  <div class="cta-footer-block">
+        <div class="cta-footer-wrap">
+          <div class="geist-grid geist-grid--2 cta-footer-grid">
+
+            <!-- LEFT: CTA -->
+            <div class="g-cell cta-footer-left">
+              <div class="cta-label">Next step</div>
+              <h2 class="cta-title">Talk to the technical team — not sales.</h2>
+              <p class="cta-body">A 30-minute session with someone who can answer your specific integration and architecture questions. Stack compatibility, data architecture, security controls, deployment scope — bring what you need answered.</p>
+              <div class="cta-actions">
+                <a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#" class="btn-primary">Book a technical session</a>
+                <a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#" class="btn-ghost">See compliance documentation</a>
+              </div>
+            </div>
+
+            <!-- RIGHT: FOOTER CONTENT -->
+            <div class="g-cell cta-footer-right">
+              <div class="footer-logo-row" style="margin-bottom:20px;">
+                <div class="footer-logo-svg" aria-label="Moxso"><svg height="20" width="109" viewBox="0 0 771 141" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M382.146 118.074C386.562 118.074 389.966 116.847 392.358 114.394C394.75 111.94 395.946 108.444 395.946 103.906V62.1376C395.946 49.2576 393.431 39.7203 388.402 33.5256C383.373 27.3309 375.706 24.2336 365.402 24.2336C358.901 24.2336 352.982 25.7363 347.646 28.7416C342.31 31.7469 338.231 35.9483 335.41 41.3456C333.079 35.5803 329.675 31.2869 325.198 28.4656C320.721 25.6443 315.293 24.2336 308.914 24.2336C302.658 24.2336 297.169 25.5523 292.446 28.1896C287.723 30.8269 284.013 34.4763 281.314 39.1376V38.5856C281.314 29.2629 276.775 24.6016 267.698 24.6016C258.621 24.6016 254.082 29.2629 254.082 38.5856V103.906C254.082 113.351 258.743 118.074 268.066 118.074C277.266 118.074 281.866 113.351 281.866 103.906V66.9216C281.866 60.1749 283.338 54.9616 286.282 51.2816C289.226 47.6016 293.335 45.7616 298.61 45.7616C303.026 45.7616 306.215 47.1416 308.178 49.9016C310.141 52.6616 311.122 57.0469 311.122 63.0576V103.906C311.122 108.444 312.349 111.94 314.802 114.394C317.255 116.847 320.69 118.074 325.106 118.074C334.306 118.074 338.906 113.351 338.906 103.906V66.9216C338.906 60.1749 340.378 54.9616 343.322 51.2816C346.266 47.6016 350.375 45.7616 355.65 45.7616C360.189 45.7616 363.409 47.1416 365.31 49.9016C367.211 52.6616 368.162 57.0469 368.162 63.0576V103.906C368.162 113.351 372.823 118.074 382.146 118.074ZM451.714 118.442C461.405 118.442 469.838 116.51 477.014 112.646C484.19 108.782 489.771 103.323 493.758 96.2696C497.745 89.2163 499.738 80.8443 499.738 71.1536C499.738 61.5856 497.745 53.2749 493.758 46.2216C489.771 39.1683 484.19 33.7403 477.014 29.9376C469.838 26.1349 461.405 24.2336 451.714 24.2336C442.023 24.2336 433.59 26.1349 426.414 29.9376C419.238 33.7403 413.687 39.1683 409.762 46.2216C405.837 53.2749 403.874 61.5856 403.874 71.1536C403.874 80.8443 405.837 89.2163 409.762 96.2696C413.687 103.323 419.238 108.782 426.414 112.646C433.59 116.51 442.023 118.442 451.714 118.442ZM437.362 91.2096C441.042 95.5029 445.826 97.6496 451.714 97.6496C457.602 97.6496 462.417 95.5029 466.158 91.2096C469.899 86.9163 471.77 80.2309 471.77 71.1536C471.77 62.1989 469.899 55.6056 466.158 51.3736C462.417 47.1416 457.602 45.0256 451.714 45.0256C445.826 45.0256 441.042 47.1416 437.362 51.3736C433.682 55.6056 431.842 62.1989 431.842 71.1536C431.842 80.2309 433.682 86.9163 437.362 91.2096ZM577.218 117.706C580.653 117.706 583.443 116.755 585.59 114.854C587.737 112.952 588.871 110.53 588.994 107.586C589.117 104.642 587.89 101.636 585.314 98.5696L561.762 69.8656L583.106 43.7376C585.682 40.6709 586.939 37.6656 586.878 34.7216C586.817 31.7776 585.743 29.3549 583.658 27.4536C581.573 25.5523 578.813 24.6016 575.378 24.6016C572.066 24.6016 569.306 25.1536 567.098 26.2576C564.89 27.3616 562.805 29.2016 560.842 31.7776L545.938 50.9136L531.218 31.7776C529.255 29.2016 527.17 27.3616 524.962 26.2576C522.754 25.1536 519.994 24.6016 516.682 24.6016C513.247 24.6016 510.487 25.5216 508.402 27.3616C506.317 29.2016 505.213 31.5936 505.09 34.5376C504.967 37.4816 506.194 40.5483 508.77 43.7376L530.114 69.8656L506.746 98.5696C504.293 101.636 503.097 104.642 503.158 107.586C503.219 110.53 504.293 112.952 506.378 114.854C508.463 116.755 511.223 117.706 514.658 117.706C517.97 117.706 520.699 117.092 522.846 115.866C524.993 114.639 527.047 112.86 529.01 110.53L545.938 89.1856L562.682 110.53C564.645 112.983 566.761 114.792 569.03 115.958C571.299 117.123 574.029 117.706 577.218 117.706ZM661.69 110.53C654.33 115.804 644.639 118.442 632.618 118.442C627.221 118.442 621.67 117.951 615.966 116.97C610.262 115.988 605.079 114.332 600.418 112.002C597.351 110.407 595.358 108.383 594.438 105.93C593.518 103.476 593.487 101.084 594.346 98.7536C595.205 96.4229 596.738 94.6749 598.946 93.5096C601.154 92.3443 603.73 92.3749 606.674 93.6016C611.703 95.6869 616.334 97.1589 620.566 98.0176C624.798 98.8763 628.877 99.3056 632.802 99.3056C637.954 99.3056 641.757 98.4776 644.21 96.8216C646.663 95.1656 647.89 92.9883 647.89 90.2896C647.89 85.9963 644.762 83.2976 638.506 82.1936L619.186 78.6976C611.458 77.3483 605.57 74.5883 601.522 70.4176C597.474 66.2469 595.45 60.7883 595.45 54.0416C595.45 47.9083 597.167 42.6336 600.602 38.2176C604.037 33.8016 608.759 30.3669 614.77 27.9136C620.781 25.4603 627.711 24.2336 635.562 24.2336C646.357 24.2336 655.925 26.3189 664.266 30.4896C667.087 31.8389 668.835 33.7403 669.51 36.1936C670.185 38.6469 670.031 41.0389 669.05 43.3696C668.069 45.7003 666.474 47.4483 664.266 48.6136C662.058 49.7789 659.421 49.6869 656.354 48.3376C652.306 46.4976 648.626 45.1789 645.314 44.3816C642.002 43.5843 638.874 43.1856 635.93 43.1856C630.41 43.1856 626.423 44.0749 623.97 45.8536C621.517 47.6323 620.29 49.8709 620.29 52.5696C620.29 56.8629 623.173 59.5616 628.938 60.6656L648.258 64.1616C656.231 65.5109 662.303 68.1789 666.474 72.1656C670.645 76.1523 672.73 81.5803 672.73 88.4496C672.73 97.895 669.05 105.255 661.69 110.53ZM722.978 118.442C732.669 118.442 741.102 116.51 748.278 112.646C755.454 108.782 761.035 103.323 765.022 96.2696C769.009 89.2163 771.002 80.8443 771.002 71.1536C771.002 61.5856 769.009 53.2749 765.022 46.2216C761.035 39.1683 755.454 33.7403 748.278 29.9376C741.102 26.1349 732.669 24.2336 722.978 24.2336C713.287 24.2336 704.854 26.1349 697.678 29.9376C690.502 33.7403 684.951 39.1683 681.026 46.2216C677.101 53.2749 675.138 61.5856 675.138 71.1536C675.138 80.8443 677.101 89.2163 681.026 96.2696C684.951 103.323 690.502 108.782 697.678 112.646C704.854 116.51 713.287 118.442 722.978 118.442ZM708.626 91.2096C712.306 95.5029 717.09 97.6496 722.978 97.6496C728.866 97.6496 733.681 95.5029 737.422 91.2096C741.163 86.9163 743.034 80.2309 743.034 71.1536C743.034 62.1989 741.163 55.6056 737.422 51.3736C733.681 47.1416 728.866 45.0256 722.978 45.0256C717.09 45.0256 712.306 47.1416 708.626 51.3736C704.946 55.6056 703.106 62.1989 703.106 71.1536C703.106 80.2309 704.946 86.9163 708.626 91.2096Z" fill="#222222"></path>
+<mask id="ft_mask0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="132" height="141">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0.005 69.6376C0.189 58.5386 -0.019 46.9906 0.849 35.9466C1.853 23.1686 5.266 10.8486 17.236 3.93762C29.207 -2.97338 41.582 0.230616 53.15 5.75062C63.148 10.5206 73.045 16.4756 82.749 21.8656L83.094 22.0566L83.432 22.2596C85.708 23.6246 88.017 24.9826 90.339 26.3446C82.95 30.6806 75.438 35.0616 68.491 39.8356C67.399 40.5856 66.325 41.3556 65.276 42.1486C61.421 39.9906 57.569 37.8236 53.708 35.6756C49.817 33.5166 45.874 31.3376 41.857 29.4216C39.528 28.3116 32.952 25.1506 30.351 26.6516C27.75 28.1526 27.199 35.4286 26.997 38.0016C26.649 42.4396 26.564 46.9426 26.488 51.3926C26.382 57.6186 26.334 63.8456 26.231 69.9936C26.334 76.2196 26.382 82.4466 26.488 88.6726C26.564 93.1226 26.649 97.6266 26.997 102.064C27.199 104.635 27.75 111.912 30.351 113.414C32.952 114.916 39.529 111.755 41.857 110.643C45.874 108.727 49.817 106.548 53.708 104.389C59.153 101.368 64.569 98.2956 69.945 95.3096C75.286 92.1076 80.654 88.9536 85.993 85.7486C89.808 83.4576 93.666 81.1326 97.335 78.6116C99.461 77.1506 105.487 73.0356 105.487 70.0316C105.487 67.0276 99.461 62.9126 97.335 61.4516C95.058 59.8876 92.709 58.3976 90.34 56.9446C91.787 56.0566 93.24 55.1836 94.687 54.3156C100.025 51.1106 105.394 47.9556 110.667 44.7926C112.248 43.9146 113.826 43.0326 115.403 42.1486C124.508 49.0276 131.715 57.6416 131.715 70.0316C131.715 83.8536 122.752 92.9696 112.188 100.228C103.058 106.501 92.953 112.095 83.433 117.804L83.095 118.006L82.75 118.198C73.046 123.589 63.149 129.543 53.151 134.313C41.583 139.832 29.208 143.037 17.237 136.126C5.267 129.215 1.854 116.895 0.85 104.117C-0.0179999 93.0736 0.19 81.5246 0.006 70.4256L0 70.0306L0.005 69.6376Z" fill="white"></path>
+</mask>
+<g mask="url(#ft_mask0)">
+<rect x="-0.019043" y="-2.97339" width="131.733" height="146.011" fill="url(#ft_paint0)"></rect>
+</g>
+<mask id="ft_mask1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="48" y="0" width="133" height="141">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M180.672 69.6376C180.488 58.5386 180.697 46.9906 179.829 35.9466C178.825 23.1686 175.412 10.8486 163.441 3.93762C151.471 -2.97338 139.096 0.230616 127.527 5.75062C117.529 10.5206 107.632 16.4756 97.928 21.8656L97.583 22.0566L97.245 22.2596C87.724 27.9676 77.62 33.5626 68.49 39.8356C57.926 47.0936 48.963 56.2096 48.963 70.0316C48.963 82.4216 56.169 91.0326 65.275 97.9146V97.9146C66.834 97.0406 68.391 96.1716 69.943 95.3086C75.284 92.1066 80.652 88.9526 85.991 85.7476C87.438 84.8786 88.891 84.0056 90.338 83.1176C87.97 81.6646 85.62 80.1756 83.343 78.6106C81.217 77.1496 75.191 73.0346 75.191 70.0306C75.191 67.0266 81.217 62.9116 83.343 61.4506C87.011 58.9296 90.869 56.6046 94.685 54.3146C100.023 51.1096 105.392 47.9546 110.665 44.7916C116.108 41.7676 121.525 38.6956 126.97 35.6746C130.861 33.5156 134.804 31.3366 138.821 29.4206C141.15 28.3106 147.726 25.1496 150.327 26.6506C152.928 28.1516 153.479 35.4276 153.681 38.0006C154.029 42.4386 154.114 46.9416 154.19 51.3916C154.296 57.6176 154.344 63.8446 154.447 69.9926C154.344 76.2186 154.296 82.4456 154.19 88.6716C154.114 93.1216 154.029 97.6256 153.681 102.063C153.478 104.634 152.928 111.911 150.327 113.413C147.726 114.915 141.149 111.754 138.821 110.642C134.804 108.726 130.861 106.547 126.97 104.388C123.097 102.237 119.24 100.064 115.402 97.9146C114.352 98.7076 113.278 99.4776 112.187 100.228C105.24 105.002 97.728 109.382 90.339 113.719C92.661 115.081 94.97 116.44 97.246 117.804L97.584 118.006L97.929 118.198C107.633 123.589 117.53 129.543 127.528 134.313C139.096 139.832 151.471 143.037 163.442 136.126C175.413 129.215 178.826 116.895 179.83 104.117C180.698 93.0736 180.49 81.5246 180.673 70.4256L180.679 70.0306L180.672 69.6376Z" fill="white"></path>
+</mask>
+<g mask="url(#ft_mask1)">
+<rect x="48.964" y="-2.97339" width="131.733" height="146.011" fill="url(#ft_paint1)"></rect>
+</g>
+<defs>
+<lineargradient id="ft_paint0" x1="136.472" y1="156.737" x2="136.472" y2="0.177405" gradientUnits="userSpaceOnUse">
+<stop stop-color="#0287D0"></stop>
+<stop offset="0.45" stop-color="#8A5FEE"></stop>
+<stop offset="1" stop-color="#E05EC8"></stop>
+</lineargradient>
+<lineargradient id="ft_paint1" x1="185.785" y1="157.367" x2="185.785" y2="0.0773062" gradientUnits="userSpaceOnUse">
+<stop stop-color="#BE43CC"></stop>
+<stop offset="0.49" stop-color="#FF5496"></stop>
+<stop offset="1" stop-color="#FFBB33"></stop>
+</lineargradient>
+</defs>
+</svg></div></div>
+              <p class="footer-what" style="margin-bottom:28px;">Moxso is a human risk intelligence system. It captures behavioural signals continuously, builds individual risk profiles, and acts through automated training and intervention — producing board-ready proof of risk reduction over time. It is the infrastructure for the transition from security awareness training to Adaptive Human Security.</p>
+              <div class="footer-compliance-icons" style="margin-bottom:20px;">
+              <div class="compliance-icon-badge">
+                <img src="data:image/png;base64,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" alt="ISO 27001" width="36" height="36" style="display:block;width:36px;height:36px;object-fit:contain;filter:grayscale(1) brightness(0.5);">
+                <span>ISO/IEC 27001:2022</span>
+              </div>
+              <div class="compliance-icon-badge">
+                <svg width="36" height="36" style="display:block;" viewBox="0 0 677 262" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M135.172 14.1926L130.941 0.507812L126.716 14.1926H113.031L124.101 22.6485L119.876 36.3333L130.941 27.8678L142.012 36.3333L137.786 22.6485L148.852 14.1926H135.172ZM135.172 239.372L130.941 225.687L126.716 239.372H113.031L124.101 247.828L119.876 261.508L130.941 253.052L142.012 261.508L137.786 247.828L148.852 239.372H135.172ZM187.234 18.8378L191.464 32.5178H205.149L194.074 40.9785L198.304 54.6585L187.234 46.2026L176.163 54.6585L180.394 40.9785L169.319 32.5178H183.003L187.234 18.8378ZM237.521 73.4709L233.295 59.7909L229.065 73.4709H215.385L226.455 81.9268L222.225 95.6116L233.295 87.1557L244.366 95.6116L240.135 81.9268L251.206 73.4709H237.521ZM233.295 169.39L237.521 183.079H251.206L240.135 191.535L244.366 205.215L233.295 196.759L222.225 205.215L226.455 191.535L215.385 183.079H229.07L233.295 169.39ZM32.818 73.4709L28.5876 59.7909L24.3621 73.4709H10.6773L21.7476 81.9268L17.5173 95.6116L28.5876 87.1557L39.658 95.6116L35.4324 81.9268L46.498 73.4709H32.818ZM243.531 113.093L247.757 126.777H261.441L250.371 135.233L254.601 148.918L243.531 140.467L232.461 148.918L236.691 135.233L225.621 126.777H239.301L243.531 113.093ZM22.5821 126.777L18.3566 113.093L14.1262 126.777H0.441406L11.5069 135.233L7.27657 148.918L18.3518 140.467L29.4221 148.918L25.1869 135.233L36.2669 126.777H22.5821ZM28.5924 169.39L32.818 183.079H46.498L35.4324 191.535L39.658 205.215L28.5924 196.759L17.5221 205.215L21.7476 191.535L10.6773 183.079H24.3621L28.5924 169.39ZM201.7 229.131L197.475 215.451L193.244 229.131H179.559L190.63 237.592L186.399 251.272L197.475 242.816L208.54 251.272L204.31 237.592L215.385 229.131H201.7ZM74.649 18.8378L78.8745 32.5178H92.5593L81.489 40.9785L85.7194 54.6585L74.649 46.2026L63.5786 54.6585L67.809 40.9785L56.7338 32.5178H70.4186L74.649 18.8378ZM68.6387 229.136L64.4131 215.451L60.1828 229.136H46.498L57.5731 237.592L53.3428 251.272L64.4131 242.821L75.4835 251.272L71.2531 237.592L82.3235 229.136H68.6387Z" fill="rgba(0,0,0,0.45)"></path>
+<path d="M130.941 0.507812L131.085 0.463511L130.941 -0.000341356L130.798 0.463558L130.941 0.507812ZM135.172 14.1926L135.028 14.2369L135.061 14.3426H135.172V14.1926ZM126.716 14.1926V14.3426H126.827L126.859 14.2369L126.716 14.1926ZM113.031 14.1926V14.0426H112.588L112.94 14.3118L113.031 14.1926ZM124.101 22.6485L124.245 22.6928L124.276 22.5928L124.192 22.5293L124.101 22.6485ZM119.876 36.3333L119.733 36.2891L119.594 36.7379L119.967 36.4525L119.876 36.3333ZM130.941 27.8678L131.033 27.7486L130.941 27.6789L130.85 27.7486L130.941 27.8678ZM142.012 36.3333L141.921 36.4525L142.294 36.7377L142.155 36.2891L142.012 36.3333ZM137.786 22.6485L137.695 22.5293L137.612 22.5929L137.643 22.6928L137.786 22.6485ZM148.852 14.1926L148.943 14.3118L149.295 14.0426H148.852V14.1926ZM130.941 225.687L131.085 225.643L130.941 225.179L130.798 225.643L130.941 225.687ZM135.172 239.372L135.028 239.416L135.061 239.522H135.172V239.372ZM126.716 239.372V239.522H126.827L126.859 239.416L126.716 239.372ZM113.031 239.372V239.222H112.588L112.94 239.491L113.031 239.372ZM124.101 247.828L124.245 247.872L124.276 247.772L124.192 247.709L124.101 247.828ZM119.876 261.508L119.733 261.464L119.594 261.912L119.967 261.627L119.876 261.508ZM130.941 253.052L131.032 252.933L130.941 252.863L130.85 252.933L130.941 253.052ZM142.012 261.508L141.921 261.627L142.294 261.912L142.155 261.464L142.012 261.508ZM137.786 247.828L137.695 247.709L137.612 247.772L137.643 247.872L137.786 247.828ZM148.852 239.372L148.943 239.491L149.295 239.222H148.852V239.372ZM191.464 32.5178L191.321 32.5621L191.354 32.6678H191.464V32.5178ZM187.234 18.8378L187.377 18.7935L187.234 18.3301L187.091 18.7935L187.234 18.8378ZM205.149 32.5178L205.24 32.637L205.592 32.3678H205.149V32.5178ZM194.074 40.9785L193.983 40.8593L193.9 40.9229L193.93 41.0229L194.074 40.9785ZM198.304 54.6585L198.213 54.7777L198.586 55.0626L198.447 54.6142L198.304 54.6585ZM187.234 46.2026L187.325 46.0834L187.234 46.0138L187.143 46.0834L187.234 46.2026ZM176.163 54.6585L176.02 54.6142L175.881 55.0626L176.255 54.7777L176.163 54.6585ZM180.394 40.9785L180.537 41.0229L180.568 40.9229L180.485 40.8593L180.394 40.9785ZM169.319 32.5178V32.3678H168.875L169.228 32.637L169.319 32.5178ZM183.003 32.5178V32.6678H183.114L183.147 32.5621L183.003 32.5178ZM233.295 59.7909L233.439 59.7466L233.295 59.2829L233.152 59.7466L233.295 59.7909ZM237.521 73.4709L237.377 73.5152L237.41 73.6209H237.521V73.4709ZM229.065 73.4709V73.6209H229.175L229.208 73.5152L229.065 73.4709ZM215.385 73.4709V73.3209H214.941L215.294 73.5901L215.385 73.4709ZM226.455 81.9268L226.599 81.9711L226.629 81.8711L226.546 81.8076L226.455 81.9268ZM222.225 95.6116L222.082 95.5673L221.943 96.0157L222.316 95.7308L222.225 95.6116ZM233.295 87.1557L233.386 87.0365L233.295 86.9669L233.204 87.0365L233.295 87.1557ZM244.366 95.6116L244.275 95.7308L244.647 96.0157L244.509 95.5673L244.366 95.6116ZM240.135 81.9268L240.044 81.8076L239.961 81.8711L239.992 81.9711L240.135 81.9268ZM251.206 73.4709L251.297 73.5901L251.649 73.3209H251.206V73.4709ZM237.521 183.079L237.377 183.124L237.41 183.229H237.521V183.079ZM233.295 169.39L233.439 169.346L233.295 168.881L233.152 169.346L233.295 169.39ZM251.206 183.079L251.297 183.199L251.649 182.93H251.206V183.079ZM240.135 191.535L240.044 191.416L239.961 191.48L239.992 191.58L240.135 191.535ZM244.366 205.215L244.275 205.335L244.648 205.62L244.509 205.171L244.366 205.215ZM233.295 196.759L233.386 196.64L233.295 196.571L233.204 196.64L233.295 196.759ZM222.225 205.215L222.082 205.171L221.943 205.62L222.316 205.335L222.225 205.215ZM226.455 191.535L226.599 191.58L226.629 191.48L226.546 191.416L226.455 191.535ZM215.385 183.079V182.93H214.941L215.294 183.199L215.385 183.079ZM229.07 183.079V183.229H229.18L229.213 183.124L229.07 183.079ZM28.5876 59.7909L28.7309 59.7466L28.5875 59.2829L28.4443 59.7466L28.5876 59.7909ZM32.818 73.4709L32.6747 73.5152L32.7074 73.6209H32.818V73.4709ZM24.3621 73.4709V73.6209H24.4727L24.5054 73.5152L24.3621 73.4709ZM10.6773 73.4709V73.3209H10.2338L10.5862 73.5901L10.6773 73.4709ZM21.7476 81.9268L21.8909 81.9711L21.9218 81.8711L21.8387 81.8076L21.7476 81.9268ZM17.5173 95.6116L17.3739 95.5673L17.2353 96.0157L17.6083 95.7308L17.5173 95.6116ZM28.5876 87.1557L28.6787 87.0365L28.5876 86.9669L28.4966 87.0365L28.5876 87.1557ZM39.658 95.6116L39.5669 95.7308L39.9397 96.0155L39.8013 95.5673L39.658 95.6116ZM35.4324 81.9268L35.3413 81.8076L35.2582 81.8711L35.2891 81.9711L35.4324 81.9268ZM46.498 73.4709L46.589 73.5901L46.9413 73.3209H46.498V73.4709ZM247.757 126.777L247.613 126.822L247.646 126.927H247.757V126.777ZM243.531 113.093L243.674 113.048L243.531 112.584L243.388 113.048L243.531 113.093ZM261.441 126.777L261.532 126.897L261.885 126.627H261.441V126.777ZM250.371 135.233L250.28 135.114L250.197 135.178L250.228 135.278L250.371 135.233ZM254.601 148.918L254.51 149.037L254.883 149.322L254.745 148.874L254.601 148.918ZM243.531 140.467L243.622 140.348L243.531 140.278L243.44 140.348L243.531 140.467ZM232.461 148.918L232.317 148.874L232.179 149.322L232.552 149.037L232.461 148.918ZM236.691 135.233L236.834 135.278L236.865 135.178L236.782 135.114L236.691 135.233ZM225.621 126.777V126.627H225.177L225.53 126.897L225.621 126.777ZM239.301 126.777V126.927H239.411L239.444 126.822L239.301 126.777ZM18.3566 113.093L18.4999 113.048L18.3567 112.584L18.2133 113.048L18.3566 113.093ZM22.5821 126.777L22.4388 126.822L22.4715 126.927H22.5821V126.777ZM14.1262 126.777V126.927H14.2368L14.2695 126.822L14.1262 126.777ZM0.441406 126.777V126.627H-0.00192937L0.350329 126.897L0.441406 126.777ZM11.5069 135.233L11.6503 135.278L11.6812 135.178L11.598 135.114L11.5069 135.233ZM7.27657 148.918L7.13326 148.874L6.99476 149.322L7.36756 149.037L7.27657 148.918ZM18.3518 140.467L18.4428 140.348L18.3518 140.278L18.2608 140.348L18.3518 140.467ZM29.4221 148.918L29.3311 149.037L29.7042 149.322L29.5654 148.874L29.4221 148.918ZM25.1869 135.233L25.0959 135.114L25.0127 135.178L25.0436 135.278L25.1869 135.233ZM36.2669 126.777L36.3579 126.897L36.7107 126.627H36.2669V126.777ZM32.818 183.079L32.6747 183.124L32.7073 183.229H32.818V183.079ZM28.5924 169.39L28.7358 169.346L28.5925 168.882L28.4491 169.346L28.5924 169.39ZM46.498 183.079L46.589 183.199L46.9413 182.93H46.498V183.079ZM35.4324 191.535L35.3413 191.416L35.2582 191.48L35.2891 191.58L35.4324 191.535ZM39.658 205.215L39.5669 205.335L39.9398 205.62L39.8013 205.171L39.658 205.215ZM28.5924 196.759L28.6835 196.64L28.5925 196.571L28.5014 196.64L28.5924 196.759ZM17.5221 205.215L17.3788 205.171L17.2403 205.619L17.6131 205.335L17.5221 205.215ZM21.7476 191.535L21.8909 191.58L21.9218 191.48L21.8387 191.416L21.7476 191.535ZM10.6773 183.079V182.93H10.2338L10.5862 183.199L10.6773 183.079ZM24.3621 183.079V183.229H24.4727L24.5054 183.124L24.3621 183.079ZM197.475 215.451L197.618 215.407L197.475 214.943L197.331 215.407L197.475 215.451ZM201.7 229.131L201.557 229.176L201.589 229.281H201.7V229.131ZM193.244 229.131V229.281H193.355L193.387 229.176L193.244 229.131ZM179.559 229.131V228.981H179.116L179.468 229.25L179.559 229.131ZM190.63 237.592L190.773 237.636L190.804 237.536L190.721 237.473L190.63 237.592ZM186.399 251.272L186.256 251.228L186.117 251.676L186.49 251.391L186.399 251.272ZM197.475 242.816L197.566 242.697L197.475 242.627L197.383 242.697L197.475 242.816ZM208.54 251.272L208.449 251.391L208.822 251.676L208.683 251.228L208.54 251.272ZM204.31 237.592L204.219 237.473L204.135 237.536L204.166 237.636L204.31 237.592ZM215.385 229.131L215.476 229.25L215.828 228.981H215.385V229.131ZM78.8745 32.5178L78.7312 32.5621L78.7639 32.6678H78.8745V32.5178ZM74.649 18.8378L74.7923 18.7936L74.6491 18.3298L74.5057 18.7935L74.649 18.8378ZM92.5593 32.5178L92.6504 32.637L93.0026 32.3678H92.5593V32.5178ZM81.489 40.9785L81.3979 40.8594L81.3148 40.9229L81.3457 41.0229L81.489 40.9785ZM85.7194 54.6585L85.6283 54.7777L86.0013 55.0626L85.8627 54.6142L85.7194 54.6585ZM74.649 46.2026L74.74 46.0834L74.649 46.0138L74.5579 46.0834L74.649 46.2026ZM63.5786 54.6585L63.4353 54.6142L63.2966 55.0626L63.6697 54.7777L63.5786 54.6585ZM67.809 40.9785L67.9523 41.0229L67.9832 40.9229L67.9001 40.8593L67.809 40.9785ZM56.7338 32.5178V32.3678H56.2904L56.6428 32.637L56.7338 32.5178ZM70.4186 32.5178V32.6678H70.5292L70.5619 32.5621L70.4186 32.5178ZM64.4131 215.451L64.5564 215.407L64.4132 214.943L64.2698 215.407L64.4131 215.451ZM68.6387 229.136L68.4954 229.18L68.528 229.286H68.6387V229.136ZM60.1828 229.136V229.286H60.2934L60.3261 229.18L60.1828 229.136ZM46.498 229.136V228.986H46.0543L46.4069 229.255L46.498 229.136ZM57.5731 237.592L57.7164 237.636L57.7474 237.536L57.6642 237.473L57.5731 237.592ZM53.3428 251.272L53.1995 251.228L53.0609 251.676L53.4338 251.391L53.3428 251.272ZM64.4131 242.821L64.5042 242.702L64.4131 242.632L64.3221 242.702L64.4131 242.821ZM75.4835 251.272L75.3925 251.391L75.7654 251.676L75.6268 251.228L75.4835 251.272ZM71.2531 237.592L71.1621 237.473L71.0789 237.536L71.1098 237.636L71.2531 237.592ZM82.3235 229.136L82.4145 229.255L82.767 228.986H82.3235V229.136ZM130.941 0.507812L130.798 0.552114L135.028 14.2369L135.172 14.1926L135.315 14.1483L131.085 0.463511L130.941 0.507812ZM126.716 14.1926L126.859 14.2369L131.085 0.552067L130.941 0.507812L130.798 0.463558L126.573 14.1484L126.716 14.1926ZM113.031 14.1926V14.3426H126.716V14.1926V14.0426H113.031V14.1926ZM124.101 22.6485L124.192 22.5293L113.122 14.0734L113.031 14.1926L112.94 14.3118L124.01 22.7677L124.101 22.6485ZM119.876 36.3333L120.019 36.3776L124.245 22.6928L124.101 22.6485L123.958 22.6043L119.733 36.2891L119.876 36.3333ZM130.941 27.8678L130.85 27.7486L119.785 36.2142L119.876 36.3333L119.967 36.4525L131.033 27.9869L130.941 27.8678ZM142.012 36.3333L142.103 36.2142L131.033 27.7486L130.941 27.8678L130.85 27.9869L141.921 36.4525L142.012 36.3333ZM137.786 22.6485L137.643 22.6928L141.868 36.3776L142.012 36.3333L142.155 36.2891L137.93 22.6043L137.786 22.6485ZM148.852 14.1926L148.761 14.0734L137.695 22.5293L137.786 22.6485L137.877 22.7677L148.943 14.3118L148.852 14.1926ZM135.172 14.1926V14.3426H148.852V14.1926V14.0426H135.172V14.1926ZM130.941 225.687L130.798 225.731L135.028 239.416L135.172 239.372L135.315 239.328L131.085 225.643L130.941 225.687ZM126.716 239.372L126.859 239.416L131.085 225.731L130.941 225.687L130.798 225.643L126.573 239.328L126.716 239.372ZM113.031 239.372V239.522H126.716V239.372V239.222H113.031V239.372ZM124.101 247.828L124.192 247.709L113.122 239.253L113.031 239.372L112.94 239.491L124.01 247.947L124.101 247.828ZM119.876 261.508L120.019 261.552L124.245 247.872L124.101 247.828L123.958 247.784L119.733 261.464L119.876 261.508ZM130.941 253.052L130.85 252.933L119.785 261.389L119.876 261.508L119.967 261.627L131.032 253.171L130.941 253.052ZM142.012 261.508L142.103 261.389L131.032 252.933L130.941 253.052L130.85 253.171L141.921 261.627L142.012 261.508ZM137.786 247.828L137.643 247.872L141.868 261.552L142.012 261.508L142.155 261.464L137.93 247.784L137.786 247.828ZM148.852 239.372L148.761 239.253L137.695 247.709L137.786 247.828L137.877 247.947L148.943 239.491L148.852 239.372ZM135.172 239.372V239.522H148.852V239.372V239.222H135.172V239.372ZM191.464 32.5178L191.607 32.4735L187.377 18.7935L187.234 18.8378L187.091 18.8821L191.321 32.5621L191.464 32.5178ZM205.149 32.5178V32.3678H191.464V32.5178V32.6678H205.149V32.5178ZM194.074 40.9785L194.165 41.0977L205.24 32.637L205.149 32.5178L205.058 32.3986L193.983 40.8593L194.074 40.9785ZM198.304 54.6585L198.447 54.6142L194.217 40.9342L194.074 40.9785L193.93 41.0229L198.161 54.7028L198.304 54.6585ZM187.234 46.2026L187.143 46.3218L198.213 54.7777L198.304 54.6585L198.395 54.5393L187.325 46.0834L187.234 46.2026ZM176.163 54.6585L176.255 54.7777L187.325 46.3218L187.234 46.2026L187.143 46.0834L176.072 54.5393L176.163 54.6585ZM180.394 40.9785L180.251 40.9342L176.02 54.6142L176.163 54.6585L176.307 54.7028L180.537 41.0229L180.394 40.9785ZM169.319 32.5178L169.228 32.637L180.303 41.0977L180.394 40.9785L180.485 40.8593L169.41 32.3986L169.319 32.5178ZM183.003 32.5178V32.3678H169.319V32.5178V32.6678H183.003V32.5178ZM187.234 18.8378L187.091 18.7935L182.86 32.4735L183.003 32.5178L183.147 32.5621L187.377 18.8821L187.234 18.8378ZM233.295 59.7909L233.152 59.8352L237.377 73.5152L237.521 73.4709L237.664 73.4266L233.439 59.7466L233.295 59.7909ZM229.065 73.4709L229.208 73.5152L233.439 59.8352L233.295 59.7909L233.152 59.7466L228.922 73.4266L229.065 73.4709ZM215.385 73.4709V73.6209H229.065V73.4709V73.3209H215.385V73.4709ZM226.455 81.9268L226.546 81.8076L215.476 73.3517L215.385 73.4709L215.294 73.5901L226.364 82.046L226.455 81.9268ZM222.225 95.6116L222.368 95.6559L226.599 81.9711L226.455 81.9268L226.312 81.8825L222.082 95.5673L222.225 95.6116ZM233.295 87.1557L233.204 87.0365L222.134 95.4924L222.225 95.6116L222.316 95.7308L233.386 87.2749L233.295 87.1557ZM244.366 95.6116L244.457 95.4924L233.386 87.0365L233.295 87.1557L233.204 87.2749L244.275 95.7308L244.366 95.6116ZM240.135 81.9268L239.992 81.9711L244.222 95.6559L244.366 95.6116L244.509 95.5673L240.279 81.8825L240.135 81.9268ZM251.206 73.4709L251.115 73.3517L240.044 81.8076L240.135 81.9268L240.226 82.046L251.297 73.5901L251.206 73.4709ZM237.521 73.4709V73.6209H251.206V73.4709V73.3209H237.521V73.4709ZM237.521 183.079L237.664 183.035L233.439 169.346L233.295 169.39L233.152 169.434L237.377 183.124L237.521 183.079ZM251.206 183.079V182.93H237.521V183.079V183.229H251.206V183.079ZM240.135 191.535L240.226 191.655L251.297 183.199L251.206 183.079L251.115 182.96L240.044 191.416L240.135 191.535ZM244.366 205.215L244.509 205.171L240.279 191.491L240.135 191.535L239.992 191.58L244.222 205.26L244.366 205.215ZM233.295 196.759L233.204 196.879L244.275 205.335L244.366 205.215L244.457 205.096L233.386 196.64L233.295 196.759ZM222.225 205.215L222.316 205.335L233.386 196.879L233.295 196.759L233.204 196.64L222.134 205.096L222.225 205.215ZM226.455 191.535L226.312 191.491L222.082 205.171L222.225 205.215L222.368 205.26L226.599 191.58L226.455 191.535ZM215.385 183.079L215.294 183.199L226.364 191.655L226.455 191.535L226.546 191.416L215.476 182.96L215.385 183.079ZM229.07 183.079V182.93H215.385V183.079V183.229H229.07V183.079ZM233.295 169.39L233.152 169.346L228.926 183.035L229.07 183.079L229.213 183.124L233.439 169.434L233.295 169.39ZM28.5876 59.7909L28.4443 59.8352L32.6747 73.5152L32.818 73.4709L32.9613 73.4266L28.7309 59.7466L28.5876 59.7909ZM24.3621 73.4709L24.5054 73.5152L28.7309 59.8352L28.5876 59.7909L28.4443 59.7466L24.2187 73.4266L24.3621 73.4709ZM10.6773 73.4709V73.6209H24.3621V73.4709V73.3209H10.6773V73.4709ZM21.7476 81.9268L21.8387 81.8076L10.7683 73.3517L10.6773 73.4709L10.5862 73.5901L21.6566 82.046L21.7476 81.9268ZM17.5173 95.6116L17.6606 95.6559L21.8909 81.9711L21.7476 81.9268L21.6043 81.8825L17.3739 95.5673L17.5173 95.6116ZM28.5876 87.1557L28.4966 87.0365L17.4262 95.4924L17.5173 95.6116L17.6083 95.7308L28.6787 87.2749L28.5876 87.1557ZM39.658 95.6116L39.749 95.4924L28.6787 87.0365L28.5876 87.1557L28.4966 87.2749L39.5669 95.7308L39.658 95.6116ZM35.4324 81.9268L35.2891 81.9711L39.5147 95.6559L39.658 95.6116L39.8013 95.5673L35.5757 81.8825L35.4324 81.9268ZM46.498 73.4709L46.4069 73.3517L35.3413 81.8076L35.4324 81.9268L35.5235 82.046L46.589 73.5901L46.498 73.4709ZM32.818 73.4709V73.6209H46.498V73.4709V73.3209H32.818V73.4709ZM247.757 126.777L247.9 126.733L243.674 113.048L243.531 113.093L243.388 113.137L247.613 126.822L247.757 126.777ZM261.441 126.777V126.627H247.757V126.777V126.927H261.441V126.777ZM250.371 135.233L250.462 135.353L261.532 126.897L261.441 126.777L261.35 126.658L250.28 135.114L250.371 135.233ZM254.601 148.918L254.745 148.874L250.514 135.189L250.371 135.233L250.228 135.278L254.458 148.962L254.601 148.918ZM243.531 140.467L243.44 140.586L254.51 149.037L254.601 148.918L254.692 148.799L243.622 140.348L243.531 140.467ZM232.461 148.918L232.552 149.037L243.622 140.586L243.531 140.467L243.44 140.348L232.37 148.799L232.461 148.918ZM236.691 135.233L236.548 135.189L232.317 148.874L232.461 148.918L232.604 148.962L236.834 135.278L236.691 135.233ZM225.621 126.777L225.53 126.897L236.6 135.353L236.691 135.233L236.782 135.114L225.712 126.658L225.621 126.777ZM239.301 126.777V126.627H225.621V126.777V126.927H239.301V126.777ZM243.531 113.093L243.388 113.048L239.157 126.733L239.301 126.777L239.444 126.822L243.674 113.137L243.531 113.093ZM18.3566 113.093L18.2133 113.137L22.4388 126.822L22.5821 126.777L22.7254 126.733L18.4999 113.048L18.3566 113.093ZM14.1262 126.777L14.2695 126.822L18.4999 113.137L18.3566 113.093L18.2133 113.048L13.9829 126.733L14.1262 126.777ZM0.441406 126.777V126.927H14.1262V126.777V126.627H0.441406V126.777ZM11.5069 135.233L11.598 135.114L0.532483 126.658L0.441406 126.777L0.350329 126.897L11.4159 135.353L11.5069 135.233ZM7.27657 148.918L7.41988 148.962L11.6503 135.278L11.5069 135.233L11.3636 135.189L7.13326 148.874L7.27657 148.918ZM18.3518 140.467L18.2608 140.348L7.18558 148.799L7.27657 148.918L7.36756 149.037L18.4427 140.586L18.3518 140.467ZM29.4221 148.918L29.5131 148.799L18.4428 140.348L18.3518 140.467L18.2607 140.586L29.3311 149.037L29.4221 148.918ZM25.1869 135.233L25.0436 135.278L29.2788 148.962L29.4221 148.918L29.5654 148.874L25.3302 135.189L25.1869 135.233ZM36.2669 126.777L36.1759 126.658L25.0959 135.114L25.1869 135.233L25.2779 135.353L36.3579 126.897L36.2669 126.777ZM22.5821 126.777V126.927H36.2669V126.777V126.627H22.5821V126.777ZM32.818 183.079L32.9613 183.035L28.7358 169.346L28.5924 169.39L28.4491 169.434L32.6747 183.124L32.818 183.079ZM46.498 183.079V182.93H32.818V183.079V183.229H46.498V183.079ZM35.4324 191.535L35.5235 191.655L46.589 183.199L46.498 183.079L46.4069 182.96L35.3413 191.416L35.4324 191.535ZM39.658 205.215L39.8013 205.171L35.5757 191.491L35.4324 191.535L35.2891 191.58L39.5147 205.26L39.658 205.215ZM28.5924 196.759L28.5014 196.879L39.5669 205.335L39.658 205.215L39.7491 205.096L28.6835 196.64L28.5924 196.759ZM17.5221 205.215L17.6131 205.335L28.6835 196.879L28.5924 196.759L28.5014 196.64L17.431 205.096L17.5221 205.215ZM21.7476 191.535L21.6043 191.491L17.3788 205.171L17.5221 205.215L17.6654 205.26L21.8909 191.58L21.7476 191.535ZM10.6773 183.079L10.5862 183.199L21.6566 191.655L21.7476 191.535L21.8387 191.416L10.7683 182.96L10.6773 183.079ZM24.3621 183.079V182.93H10.6773V183.079V183.229H24.3621V183.079ZM28.5924 169.39L28.4491 169.346L24.2188 183.035L24.3621 183.079L24.5054 183.124L28.7358 169.434L28.5924 169.39ZM197.475 215.451L197.331 215.496L201.557 229.176L201.7 229.131L201.843 229.087L197.618 215.407L197.475 215.451ZM193.244 229.131L193.387 229.176L197.618 215.496L197.475 215.451L197.331 215.407L193.101 229.087L193.244 229.131ZM179.559 229.131V229.281H193.244V229.131V228.981H179.559V229.131ZM190.63 237.592L190.721 237.473L179.65 229.012L179.559 229.131L179.468 229.25L190.539 237.711L190.63 237.592ZM186.399 251.272L186.543 251.316L190.773 237.636L190.63 237.592L190.486 237.548L186.256 251.228L186.399 251.272ZM197.475 242.816L197.383 242.697L186.308 251.153L186.399 251.272L186.49 251.391L197.566 242.935L197.475 242.816ZM208.54 251.272L208.631 251.153L197.566 242.697L197.475 242.816L197.383 242.935L208.449 251.391L208.54 251.272ZM204.31 237.592L204.166 237.636L208.397 251.316L208.54 251.272L208.683 251.228L204.453 237.548L204.31 237.592ZM215.385 229.131L215.294 229.012L204.219 237.473L204.31 237.592L204.401 237.711L215.476 229.25L215.385 229.131ZM201.7 229.131V229.281H215.385V229.131V228.981H201.7V229.131ZM78.8745 32.5178L79.0179 32.4735L74.7923 18.7936L74.649 18.8378L74.5057 18.8821L78.7312 32.5621L78.8745 32.5178ZM92.5593 32.5178V32.3678H78.8745V32.5178V32.6678H92.5593V32.5178ZM81.489 40.9785L81.5801 41.0977L92.6504 32.637L92.5593 32.5178L92.4683 32.3986L81.3979 40.8594L81.489 40.9785ZM85.7194 54.6585L85.8627 54.6142L81.6323 40.9342L81.489 40.9785L81.3457 41.0229L85.576 54.7028L85.7194 54.6585ZM74.649 46.2026L74.5579 46.3218L85.6283 54.7777L85.7194 54.6585L85.8104 54.5393L74.74 46.0834L74.649 46.2026ZM63.5786 54.6585L63.6697 54.7777L74.74 46.3218L74.649 46.2026L74.5579 46.0834L63.4876 54.5393L63.5786 54.6585ZM67.809 40.9785L67.6657 40.9342L63.4353 54.6142L63.5786 54.6585L63.7219 54.7028L67.9523 41.0229L67.809 40.9785ZM56.7338 32.5178L56.6428 32.637L67.7179 41.0977L67.809 40.9785L67.9001 40.8593L56.8249 32.3986L56.7338 32.5178ZM70.4186 32.5178V32.3678H56.7338V32.5178V32.6678H70.4186V32.5178ZM74.649 18.8378L74.5057 18.7935L70.2753 32.4735L70.4186 32.5178L70.5619 32.5621L74.7923 18.8821L74.649 18.8378ZM64.4131 215.451L64.2698 215.496L68.4954 229.18L68.6387 229.136L68.782 229.092L64.5564 215.407L64.4131 215.451ZM60.1828 229.136L60.3261 229.18L64.5564 215.496L64.4131 215.451L64.2698 215.407L60.0394 229.092L60.1828 229.136ZM46.498 229.136V229.286H60.1828V229.136V228.986H46.498V229.136ZM57.5731 237.592L57.6642 237.473L46.589 229.017L46.498 229.136L46.4069 229.255L57.4821 237.711L57.5731 237.592ZM53.3428 251.272L53.4861 251.316L57.7164 237.636L57.5731 237.592L57.4298 237.548L53.1995 251.228L53.3428 251.272ZM64.4131 242.821L64.3221 242.702L53.2518 251.153L53.3428 251.272L53.4338 251.391L64.5042 242.94L64.4131 242.821ZM75.4835 251.272L75.5745 251.153L64.5042 242.702L64.4131 242.821L64.3221 242.94L75.3925 251.391L75.4835 251.272ZM71.2531 237.592L71.1098 237.636L75.3402 251.316L75.4835 251.272L75.6268 251.228L71.3964 237.548L71.2531 237.592ZM82.3235 229.136L82.2324 229.017L71.1621 237.473L71.2531 237.592L71.3442 237.711L82.4145 229.255L82.3235 229.136ZM68.6387 229.136V229.286H82.3235V229.136V228.986H68.6387V229.136Z" fill="black"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M383.456 135.647C358.489 135.647 338.159 119.046 338.159 92.58C338.159 66.1144 358.489 49.5078 383.456 49.5078C401.772 49.5078 413.068 58.495 419.215 68.8597L401.15 78.3478C397.76 72.8524 391.361 68.484 383.456 68.484C369.775 68.484 360.117 78.9691 360.117 92.58C360.117 106.186 369.78 116.671 383.456 116.671C389.98 116.671 395.876 114.427 399.266 111.681V104.688H380.066V86.8341H420.471V119.416C411.436 129.28 399.266 135.647 383.456 135.647ZM126.944 157.417L167.228 116.382C168.385 115.185 168.381 113.288 167.219 112.096L159.797 104.601C159.238 104.037 158.475 103.72 157.679 103.721C156.884 103.723 156.122 104.044 155.566 104.611L122.352 138.455C121.188 139.635 119.285 139.635 118.126 138.455L106.005 126.164C105.449 125.597 104.688 125.278 103.893 125.278C103.097 125.278 102.336 125.597 101.78 126.164L94.3141 133.754C93.1524 134.951 93.1503 136.851 94.3093 138.051L113.278 157.417C114.437 158.597 116.731 159.565 118.373 159.565H121.854C123.496 159.565 125.785 158.602 126.944 157.417ZM433.147 134.149V50.8805H468.279C494.626 50.8805 513.576 66.6105 513.576 92.4547C513.576 118.294 494.626 134.149 468.404 134.149H433.147ZM468.279 115.424H454.723V69.6062H468.404C483.712 69.6062 491.487 79.5952 491.487 92.4499C491.487 104.813 482.959 115.424 468.279 115.424ZM524.364 134.149V50.8805H566.271C585.094 50.8805 595.385 63.4895 595.385 78.5982C595.385 93.5769 585.094 105.936 566.271 105.936H545.945V134.149H524.364ZM563.383 68.9849C569.158 68.9849 573.427 72.7272 573.427 78.473C573.427 84.0888 569.158 87.7107 563.383 87.7107H545.95V68.9849H563.383ZM651.721 134.149L637.669 105.936H626.625V134.149H605.043V50.8805H646.955C665.523 50.8805 676.065 63.1139 676.065 78.5982C676.065 93.076 667.155 100.821 659.375 103.566L676.441 134.149H651.721ZM643.69 68.9849C649.336 68.9849 654.107 72.602 654.107 78.3478C654.107 84.0888 649.341 87.7107 643.69 87.7107H626.625V68.9849H643.69ZM349.836 232.508V211.812H361.512C364.434 211.812 366.544 212.453 367.834 213.739C369.123 215.025 369.963 217.052 370.359 219.822C370.659 221.95 370.881 224.176 371.031 226.497C371.175 228.823 371.576 230.827 372.218 232.508H383.895C383.316 231.691 382.899 230.77 382.669 229.796C382.388 228.688 382.19 227.562 382.075 226.425C381.953 225.265 381.866 224.103 381.814 222.938C381.771 221.949 381.722 220.96 381.664 219.971C381.564 218.625 381.379 217.286 381.109 215.964C380.855 214.684 380.416 213.448 379.805 212.294C379.222 211.197 378.441 210.218 377.501 209.404C376.463 208.537 375.241 207.915 373.928 207.583V207.439C376.903 206.249 379.047 204.52 380.365 202.242C381.679 199.969 382.335 197.277 382.335 194.16C382.351 192.217 381.983 190.289 381.254 188.487C380.543 186.743 379.48 185.164 378.129 183.849C376.72 182.485 375.052 181.414 373.223 180.699C371.174 179.907 368.992 179.516 366.795 179.548H338.159V232.508H349.836ZM349.831 203.504H362.628V203.514C365.303 203.514 367.312 202.916 368.65 201.732C369.987 200.542 370.659 198.616 370.659 195.942C370.659 193.375 369.987 191.507 368.65 190.346C367.312 189.18 365.303 188.602 362.628 188.602H349.831V203.504ZM434.094 232.508V222.716H405.457V209.736H431.191V200.687H405.462V189.339H433.495V179.548H393.79V232.508H434.094ZM454.245 220.713L450.078 232.508H438.329L458.408 179.548H470.379L490.237 232.508H478.116L474.098 220.713H454.245ZM471.051 212.039H457.293L464.208 192.6H464.357L471.051 212.034V212.039ZM530.284 230.466C527.285 231.824 523.75 232.508 519.684 232.508H496.78V179.548H519.684C522.942 179.52 526.178 180.073 529.241 181.181C532.126 182.226 534.742 183.898 536.9 186.074C539.059 188.251 540.744 190.972 541.961 194.233C543.173 197.493 543.782 201.327 543.782 205.729C543.816 209.344 543.315 212.943 542.294 216.412C541.391 219.507 539.859 222.385 537.793 224.864C535.744 227.27 533.177 229.184 530.284 230.466ZM518.863 222.716H508.457V189.339H516.787C519.66 189.339 522.08 189.744 524.035 190.563C525.996 191.381 527.57 192.552 528.758 194.083C529.946 195.62 530.806 197.46 531.322 199.613C531.844 201.761 532.105 204.174 532.105 206.842C532.105 209.76 531.733 212.236 530.989 214.259C530.246 216.287 529.251 217.929 528.015 219.191C526.773 220.453 525.359 221.358 523.775 221.898C522.196 222.441 520.538 222.718 518.868 222.716H518.863ZM579.251 212.183V232.508H567.574V211.884L548.094 179.548H561.181L573.601 200.465L585.944 179.548H598.959L579.251 212.183Z" fill="rgba(0,0,0,0.45)"></path>
+</svg>
+                <span>GDPR Compliant</span>
+              </div>
+              <div class="compliance-icon-badge">
+                <svg width="36" height="36" style="display:block;" viewBox="0 0 661 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M117.554 0V83.94L117.65 84.0172V114.89L94.5548 94.5785V23.0437H25.5529V96.8278L67.0986 160.529L121.365 194.018L147.819 230.403H204.452V191.199L152.869 145.85H189.606L230 180.565V256H135.807L104.481 212.413L49.3325 177.428L0 103.938V0H117.554Z" fill="rgba(0,0,0,0.45)"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M232.242 44.1215H250V124H139V44.1215H156.758V13.0394C156.758 9.58115 158.137 6.26452 160.591 3.81916C163.045 1.37379 166.374 0 169.845 0H219.155C226.383 0 232.242 5.83794 232.242 13.0394V44.1215ZM180.556 42.9963H208.832V22.9349H180.556V42.9963Z" fill="rgba(0,0,0,0.45)"></path>
+<path d="M225.31 70.1991L192.933 103.267C191.81 104.3 190.364 104.913 188.841 105H186.043C184.725 105 182.882 104.218 181.952 103.267L166.699 87.6578C165.767 86.6925 165.767 85.1615 166.699 84.1962L172.701 78.0837C173.148 77.627 173.759 77.3697 174.398 77.3697C175.036 77.3697 175.648 77.627 176.095 78.0837L185.84 87.988C186.287 88.4446 186.898 88.702 187.537 88.702C188.175 88.702 188.787 88.4446 189.234 87.988L215.928 60.7172C216.376 60.2602 216.987 60.0018 217.626 60C218.265 59.9982 218.878 60.2531 219.327 60.7075L225.295 66.7472C226.231 67.7056 226.235 69.2355 225.305 70.1991H225.31Z" fill="rgba(0,0,0,0.45)"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M374.384 125.951C381.689 125.951 388.144 124.669 393.744 122.105C399.349 119.546 404.055 116.072 407.867 111.685L393.377 98.0274C391.432 100.694 388.888 102.865 385.95 104.365C382.868 105.995 379.254 106.808 375.113 106.808C371.729 106.844 368.373 106.18 365.257 104.858C362.327 103.611 359.692 101.761 357.521 99.4303C355.304 97.0069 353.587 94.1693 352.467 91.0802C351.217 87.643 350.599 84.0077 350.641 80.3499C350.641 76.528 351.25 73.0157 352.467 69.8034C353.613 66.7125 355.351 63.8758 357.584 61.4533C359.792 59.084 362.465 57.1966 365.435 55.9091C368.606 54.5419 372.028 53.8563 375.48 53.8966C378.809 53.8966 382.051 54.5449 385.221 55.8462C388.386 57.1476 390.941 59.136 392.893 61.821L407.016 47.68C403.364 43.5339 398.595 40.3845 392.71 38.2317C386.962 36.1025 380.884 35.0084 374.756 35C368.18 35 362.048 36.0546 356.371 38.1688C350.863 40.175 345.812 43.2641 341.514 47.2542C337.237 51.2756 333.855 56.1552 331.59 61.5742C329.198 67.1861 328 73.4415 328 80.3499C328 87.0987 329.179 93.2766 331.527 98.8788C333.761 104.309 337.077 109.226 341.272 113.329C345.483 117.398 350.473 120.571 355.941 122.657C361.585 124.848 367.73 125.947 374.388 125.947L374.384 125.951ZM346.433 193.212V214H334.755V160.803H363.396C365.598 160.77 367.784 161.163 369.837 161.959C371.667 162.679 373.336 163.756 374.746 165.128C376.096 166.448 377.161 168.032 377.872 169.782C378.592 171.548 378.949 173.449 378.949 175.481C378.949 178.611 378.292 181.32 376.978 183.604C375.659 185.887 373.519 187.624 370.538 188.819V188.969C371.851 189.3 373.073 189.924 374.113 190.793C375.053 191.61 375.835 192.594 376.418 193.696C377.029 194.856 377.468 196.1 377.722 197.387C377.994 198.714 378.181 200.056 378.283 201.407C378.338 202.4 378.387 203.393 378.428 204.387C378.479 205.559 378.566 206.728 378.689 207.895C378.804 209.036 379.002 210.168 379.283 211.281C379.515 212.258 379.934 213.181 380.515 214H368.832C368.185 212.312 367.788 210.299 367.639 207.967C367.494 205.631 367.267 203.395 366.972 201.262C366.571 198.48 365.73 196.443 364.445 195.147C363.15 193.86 361.043 193.212 358.115 193.212H346.433ZM346.433 184.871H359.232C361.908 184.871 363.918 184.271 365.261 183.081C366.6 181.891 367.267 179.951 367.267 177.271C367.267 174.688 366.6 172.811 365.257 171.645C363.923 170.474 361.908 169.893 359.236 169.893H346.433V184.871ZM430.73 214V204.165H402.083V191.127H427.826V182.036H402.083V170.638H430.136V160.803H390.4V214H430.73ZM450.892 202.152L446.723 214H434.982L455.062 160.803H467.044L486.907 214H474.78L470.76 202.152H450.892ZM467.706 193.439H453.941L460.865 173.919H461.01L467.706 193.439ZM526.971 211.954C523.97 213.318 520.439 214 516.365 214H493.454V160.803H516.365C519.626 160.774 522.866 161.33 525.932 162.443C528.819 163.495 531.436 165.176 533.595 167.363C535.755 169.545 537.436 172.278 538.654 175.559C539.871 178.834 540.475 182.685 540.475 187.106C540.509 190.735 540.008 194.35 538.987 197.832C538.086 200.943 536.554 203.834 534.489 206.327C532.437 208.744 529.867 210.667 526.971 211.954ZM515.549 204.165H505.132V170.638H513.467C516.346 170.638 518.762 171.05 520.724 171.867C522.68 172.69 524.256 173.87 525.449 175.409C526.638 176.947 527.493 178.795 528.01 180.958C528.536 183.12 528.792 185.539 528.792 188.224C528.792 191.151 528.425 193.638 527.681 195.674C526.937 197.706 525.942 199.361 524.705 200.628C523.463 201.896 522.047 202.8 520.463 203.347C518.882 203.893 517.221 204.171 515.549 204.17V204.165ZM575.973 193.584V214H564.29V193.289L544.795 160.803H557.888L570.315 181.814L582.67 160.803H595.686L575.973 193.584ZM478.486 122.105C472.886 124.669 466.431 125.951 459.13 125.951V125.947C452.477 125.947 446.326 124.848 440.688 122.657C435.218 120.572 430.226 117.399 426.014 113.329C421.82 109.226 418.506 104.309 416.274 98.8788C413.921 93.2766 412.742 87.0987 412.742 80.3499C412.742 73.4415 413.94 67.1861 416.336 61.5742C418.6 56.1556 421.98 51.2761 426.256 47.2542C430.554 43.2641 435.605 40.175 441.113 38.1688C446.79 36.0546 452.926 35 459.497 35C465.626 35.0084 471.704 36.1025 477.452 38.2317C483.337 40.3845 488.105 43.5339 491.758 47.68L477.635 61.821C475.688 59.136 473.127 57.1476 469.963 55.8462C466.798 54.5449 463.551 53.8966 460.227 53.8966C456.773 53.8556 453.349 54.5413 450.177 55.9091C447.207 57.1966 444.534 59.084 442.326 61.4533C440.092 63.8758 438.354 66.7125 437.209 69.8034C435.992 73.0157 435.383 76.528 435.383 80.3499C435.34 84.0077 435.959 87.643 437.209 91.0802C438.329 94.1693 440.046 97.0069 442.263 99.4303C444.432 101.761 447.066 103.61 449.994 104.858C452.999 106.155 456.284 106.808 459.86 106.808C463.996 106.808 467.61 105.995 470.692 104.365C473.632 102.866 476.177 100.695 478.123 98.0274L492.608 111.685C488.796 116.072 484.09 119.546 478.486 122.105ZM522.318 123.629V91.0802H532.667C537.132 91.0802 541.437 90.5964 545.573 89.6192C549.713 88.6419 553.366 87.0987 556.531 84.9845C559.699 82.8698 562.294 80.0007 564.083 76.6344C565.948 73.1802 566.885 68.9326 566.885 63.8916C566.885 58.9376 566.01 54.7722 564.266 51.3954C562.597 48.1103 560.126 45.3012 557.082 43.2292C554.038 41.1586 550.462 39.6492 546.365 38.7203C542.268 37.7818 537.861 37.3173 533.155 37.3173H501.499V123.629H522.318ZM522.318 74.5009H531.087L531.083 74.4961C533.035 74.4961 534.9 74.3365 536.687 74.0123C538.375 73.7214 540.001 73.1438 541.495 72.3046C542.871 71.5347 544.024 70.4214 544.843 69.0729C545.655 67.7328 546.061 66.0492 546.061 64.0174C546.061 61.9855 545.655 60.3212 544.843 59.015C544.031 57.7185 542.935 56.7025 541.558 55.9672C540.176 55.2367 538.61 54.7481 536.871 54.5062C535.122 54.2643 533.32 54.1385 531.45 54.1385H522.318V74.5009ZM591.478 123.629L597.807 106.687H631.17L637.866 123.629H661L625.207 37.3222H604.997L568.837 123.634H591.483L591.478 123.629ZM603.774 89.982H625.444H625.449L614.732 60.3599L603.774 89.982Z" fill="rgba(0,0,0,0.45)"></path>
+</svg>
+                <span>CCPA Compliant</span>
+              </div>
+              <div class="compliance-icon-badge">
+                <svg width="36" height="36" style="display:block;" viewBox="0 0 604 251" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M218.906 217.096C221.818 220.347 222.572 225.957 222.025 230.076C221.817 231.645 221.301 232.829 220.96 233.611L220.959 233.612L220.958 233.615C220.902 233.744 220.831 233.906 220.786 234.019C220.789 234.214 220.824 234.614 220.852 234.937L220.857 234.994L220.858 234.998C220.96 236.156 221.101 237.741 220.736 239.497C219.494 245.481 215.828 249.689 210.928 250.752C210.161 250.919 209.391 251 208.626 251C204.339 251 200.197 248.455 197.639 244.087L197.02 243.032L197.014 243.023C194.183 238.206 190.308 231.614 188.874 225.791C187.528 220.323 189.232 217.01 190.367 215.522C191.528 213.999 194.215 211.597 199.169 212.638C200.838 212.988 202.352 213.457 203.687 213.871L203.694 213.873C206.669 214.795 208.822 215.462 211.744 214.799C214.444 214.139 216.985 214.953 218.906 217.096ZM212.295 228.686C212.361 228.503 212.449 228.261 212.487 228.133C212.616 226.808 212.433 225.285 212.201 224.478C207.986 225.538 204.723 224.322 201.835 223.246L201.814 223.238C200.67 222.812 199.587 222.408 198.413 222.113C198.273 222.078 198.149 222.054 198.039 222.039C198.052 222.11 198.066 222.186 198.083 222.266C199.008 226.787 202.051 233.009 204.273 237.555L204.275 237.558L204.838 238.709C205.989 241.073 207.727 241.565 208.864 241.269C209.778 241.03 210.962 240.183 211.442 237.504C211.449 237.296 211.413 236.808 211.386 236.427L211.382 236.377C211.3 235.263 211.187 233.738 211.41 232.055C211.603 230.59 212.003 229.49 212.294 228.688L212.294 228.687L212.295 228.686Z" fill="rgba(0,0,0,0.45)"></path>
+<path d="M255.842 124.046C255.776 122.897 255.714 121.81 255.714 120.877C255.714 114.996 255.461 110.159 254.201 104.246C254.17 103.729 254.491 102.322 254.705 101.386C255.4 98.3381 256.352 94.165 253.84 90.7373C251.628 87.7188 248.275 87.0442 245.826 86.5512C244.806 86.3455 243.265 86.035 242.941 85.6644L232.011 73.1602C230.571 71.5131 229.808 69.5484 228.926 67.2733C227.537 63.6921 225.808 59.2346 220.938 55.6669L220.26 55.1704C214.47 50.9366 210.975 48.3811 208.916 42.2454C208.47 40.9152 208.099 39.1813 207.707 37.345C206.692 32.6007 205.542 27.2238 202.088 23.4465C200.564 21.7798 199.007 20.8564 197.756 20.1146C196.366 19.2905 195.946 19.0141 195.5 18.1394C194.747 16.6632 194.183 14.8235 193.585 12.8759C193.261 11.8216 192.927 10.7322 192.547 9.65931C190.443 3.70917 186.6 0.098364 182.268 0.000557691C180.039 -0.025524 175.908 0.840689 173.264 7.37014C170.691 13.7225 171.07 20.1773 171.404 25.8711C171.665 30.3155 171.912 34.5142 170.821 38.2444C170.665 38.7765 170.236 40.037 169.613 40.2587C168.558 40.6353 165.904 39.9161 162.87 37.8185C161.724 37.026 160.42 36.2441 159.04 35.416C155.955 33.5657 151.3 30.7729 150.391 28.4657C150.337 27.6727 151.646 25.3585 152.353 24.1096C154.089 21.0415 156.25 17.223 155.098 13.0685C154.416 10.6093 152.741 8.61253 150.118 7.1344C145.936 4.77702 140.35 4.56435 135.42 4.37677C133.667 4.31006 132.011 4.24736 130.74 4.09037C123.551 3.2051 115.935 3.38967 108.964 10.6895C107.83 11.8778 106.748 13.3042 105.604 14.8145C103.888 17.0775 100.695 21.2892 98.9347 21.3374C98.0332 21.362 96.8297 20.8709 95.4443 20.3027C93.1528 19.3622 90.3038 18.1956 86.7073 18.484C81.4883 18.9088 77.7098 21.4357 74.7019 23.8508C70.1224 27.5288 65.7184 31.5318 61.4589 35.404L60.0139 36.7161C59.7564 36.9498 59.4979 37.1775 59.2404 37.4037C57.6119 38.8352 55.5855 40.6173 54.3 43.4567C53.3305 45.5974 53.0055 47.6132 52.745 49.2323C52.351 51.6754 52.1735 52.2748 51.1885 53.0723C49.3935 54.5253 46.303 55.5154 43.3145 56.4724C42.0255 56.8852 40.692 57.3126 39.4495 57.7841C37.4896 58.5289 35.4116 59.2266 33.2126 59.9659C22.2781 63.6399 8.6697 68.2122 4.21873 81.9543C3.97573 82.7036 3.71173 83.4866 3.43973 84.2936C1.81774 89.1092 -0.201751 95.1009 0.0162483 100.554C0.236747 106.08 3.24073 110.616 5.89222 114.618C6.80171 115.99 7.65971 117.287 8.3147 118.489C10.5867 122.662 10.6197 126.287 10.6622 130.874C10.6862 133.572 10.7147 136.629 11.2587 139.959C11.5842 141.951 12.3637 143.629 12.9902 144.978C13.4962 146.066 13.9742 147.094 13.8957 147.617C13.8097 148.19 12.9627 149.424 12.3452 150.324C11.4712 151.597 10.4812 153.041 9.8337 154.754C8.5242 158.222 9.1467 160.859 9.9002 162.46C11.8332 166.568 16.3662 168.11 20.0086 169.35C20.6606 169.572 21.3111 169.792 21.9361 170.025C31.1341 173.449 37.7121 170.389 43.516 167.687C45.404 166.808 47.3565 165.899 49.4125 165.19C52.2165 164.224 55.232 164.041 58.4249 163.847C60.1484 163.742 61.9304 163.635 63.7864 163.403C70.6714 162.545 77.3044 159.987 84.6628 155.351C93.5938 149.724 102.411 147.544 110.865 148.875C119.067 150.163 125.672 154.393 132.952 163.015C136.608 167.345 140.096 170.018 144.616 171.951C145.468 172.316 146.276 172.527 146.931 172.696C147.139 174.314 147.86 176.781 150.732 178.358C153.826 180.055 156.834 179.18 158.632 178.656C158.906 178.576 159.268 178.471 159.558 178.401C160.04 179.213 160.571 181.114 160.908 182.315C161.625 184.877 162.437 187.779 164.282 190.12C167.958 194.784 173.135 197.767 179.666 198.989C180.231 199.094 180.716 199.171 181.143 199.24C181.446 199.288 181.811 199.345 181.999 199.387C182.048 199.424 182.125 199.487 182.237 199.588C182.415 199.851 182.734 200.501 182.951 200.942C183.893 202.858 185.182 205.483 187.982 206.759C189.154 207.293 190.343 207.558 191.497 207.558C193.174 207.558 194.777 206.999 196.148 205.9C197.643 204.7 198.524 203.162 199.3 201.805C199.617 201.253 200.089 200.428 200.346 200.165C200.981 199.759 201.176 199.744 203.096 200.214C204.505 200.559 206.263 200.992 208.396 200.874C213.146 200.619 215.642 197.673 217.133 195.912C218.182 194.673 218.545 194.32 219.101 194.191C219.88 194.012 220.665 193.902 221.497 193.787C224.627 193.352 228.914 192.756 232.303 187.715C234.932 183.805 234.892 179.624 234.861 176.264C234.857 175.906 234.854 175.546 234.854 175.188C234.854 172.292 235.271 171.524 237.028 168.291L237.377 167.65C238.694 165.216 237.796 162.172 235.369 160.849C232.943 159.529 229.909 160.429 228.59 162.863L228.25 163.491C226.279 167.116 224.856 169.736 224.856 175.187C224.856 175.577 224.859 175.968 224.863 176.358C224.889 179.101 224.862 180.846 224.014 182.107C223.17 183.361 222.782 183.483 220.125 183.852C219.161 183.986 218.069 184.138 216.86 184.417C212.994 185.31 210.9 187.781 209.515 189.418C208.314 190.835 208.21 190.841 207.863 190.859C207.199 190.893 206.436 190.707 205.469 190.471C202.988 189.862 199.239 188.946 194.86 191.78C193.285 192.8 192.216 194.207 191.411 195.492C190.84 194.396 190.149 193.261 189.118 192.308C186.745 190.111 185.04 189.704 182.708 189.334C182.358 189.278 181.962 189.216 181.5 189.129C177.356 188.354 174.289 186.643 172.126 183.899C171.523 183.134 170.998 181.259 170.535 179.604C169.624 176.349 168.49 172.298 165.107 169.918C161.87 167.641 158.58 168.267 156.513 168.835C156.256 167.891 155.777 166.836 154.867 165.859C153.059 163.921 150.895 163.362 149.463 162.993C149.111 162.903 148.712 162.799 148.54 162.726C145.426 161.394 143.27 159.715 140.583 156.533C134.628 149.48 126.045 141.108 112.415 138.966C101.504 137.252 90.3808 139.906 79.3478 146.857C73.1894 150.737 68.0114 152.77 62.5559 153.45C61.0129 153.642 59.4634 153.737 57.8229 153.836C54.1035 154.062 50.2575 154.295 46.167 155.705C43.62 156.583 41.33 157.648 39.3095 158.589C34.1296 161.001 30.7071 162.593 25.4181 160.623C24.7051 160.357 23.9636 160.105 23.2206 159.851C22.0086 159.439 20.1126 158.794 19.2056 158.254C19.4396 157.675 20.0201 156.829 20.5816 156.011C21.8166 154.211 23.3546 151.97 23.7831 149.108C24.3101 145.596 23.0051 142.789 22.0536 140.74C21.6296 139.827 21.2286 138.965 21.1261 138.338C20.7061 135.767 20.6841 133.345 20.6606 130.782C20.6141 125.755 20.5616 120.059 17.0902 113.682C16.2282 112.098 15.2077 110.558 14.2207 109.068C12.2022 106.021 10.1157 102.87 10.0072 100.153C9.8632 96.554 11.4832 91.7459 12.9127 87.5046C13.1977 86.658 13.4742 85.8379 13.7287 85.0525C16.6232 76.116 26.2246 72.8909 36.3896 69.4752C38.5821 68.7389 40.8495 67.977 42.99 67.1639C43.986 66.7852 45.138 66.4161 46.357 66.0264C50.0415 64.8462 54.218 63.508 57.4695 60.8762C61.5259 57.592 62.1559 53.6862 62.6154 50.8338C62.8149 49.5949 62.9879 48.5235 63.4044 47.6047C63.7794 46.7756 64.5709 46.0543 65.8324 44.9448C66.1289 44.6845 66.4269 44.4217 66.7229 44.1529L68.1729 42.8357C72.3209 39.0654 76.6099 35.1662 80.9513 31.6798C83.6438 29.517 85.4233 28.6498 87.5168 28.4798C88.6668 28.392 89.8423 28.8384 91.6593 29.5842C93.6788 30.4128 96.1933 31.4456 99.2077 31.3623C105.755 31.1837 110.084 25.4733 113.562 20.885C114.53 19.6085 115.444 18.4027 116.185 17.6273C119.565 14.0877 122.805 13.216 129.522 14.045C131.211 14.2532 133.072 14.3239 135.042 14.3987C138.652 14.5361 143.146 14.7071 145.221 15.8773C145.251 15.8943 145.279 15.9104 145.305 15.9259C145.001 16.7876 144.186 18.2297 143.66 19.1586C141.767 22.503 139.175 27.0844 141.032 31.9913C143.142 37.5627 149.112 41.1449 153.909 44.0224C155.147 44.7658 156.317 45.4665 157.197 46.0759C160.493 48.355 166.922 51.8555 172.957 49.7093C175.468 48.815 178.8 46.591 180.414 41.0662C181.994 35.6628 181.684 30.3852 181.385 25.2812C181.092 20.3027 180.816 15.5954 182.421 11.4093C182.659 11.8512 182.902 12.3848 183.124 13.0103C183.433 13.884 183.723 14.8275 184.029 15.8266C184.727 18.0992 185.448 20.4496 186.597 22.7042C188.382 26.2061 190.859 27.6752 192.667 28.7476C193.557 29.2753 194.198 29.6559 194.72 30.2257C196.337 31.9943 197.184 35.9542 197.931 39.4486C198.365 41.477 198.814 43.5745 199.441 45.4444C202.515 54.6061 208.009 58.6237 214.371 63.2748L215.043 63.7658C217.552 65.604 218.415 67.8295 219.61 70.9107C220.68 73.6703 221.894 76.7971 224.495 79.7734L235.425 92.2776C237.981 95.2008 241.378 95.8844 243.859 96.384C244.334 96.4793 244.962 96.6057 245.442 96.7341C245.345 97.4573 245.115 98.465 244.959 99.1476C244.458 101.347 243.889 103.838 244.415 106.294C245.503 111.388 245.717 115.497 245.717 120.877C245.717 122.098 245.79 123.381 245.861 124.621C246.002 127.092 246.162 129.891 245.649 131.56C244.834 134.206 246.312 137.013 248.949 137.831C251.588 138.649 254.386 137.165 255.201 134.52C256.247 131.123 256.032 127.363 255.842 124.046Z" fill="rgba(0,0,0,0.45)"></path>
+<path d="M239.018 140.828C236.982 139.187 234.022 139.82 232.538 143.689L232.537 143.689L232.501 143.786C232.495 143.802 232.489 143.819 232.483 143.835C232.477 143.852 232.471 143.869 232.465 143.886L232.429 143.983L232.43 143.983C231.049 147.936 232.3 151.968 234.336 153.612C235.023 154.166 235.814 154.461 236.619 154.461C238.2 154.461 239.832 153.319 240.817 150.754L240.818 150.755L240.855 150.654C240.861 150.639 240.866 150.624 240.872 150.609C240.873 150.607 240.873 150.605 240.874 150.603C240.88 150.588 240.885 150.573 240.891 150.557L240.927 150.457L240.927 150.456C242.306 146.501 241.055 142.47 239.018 140.828Z" fill="rgba(0,0,0,0.45)"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M354.686 201.289V222H343V169.002H371.658C373.857 168.97 376.041 169.361 378.091 170.154C379.921 170.869 381.59 171.941 383.001 173.306C384.352 174.622 385.417 176.202 386.128 177.947C386.858 179.751 387.226 181.68 387.21 183.625C387.21 186.743 386.553 189.438 385.239 191.713C383.919 193.992 381.774 195.723 378.797 196.913V197.058C380.111 197.389 381.333 198.012 382.373 198.88C383.313 199.694 384.095 200.674 384.678 201.771C385.289 202.926 385.729 204.163 385.983 205.444C386.253 206.768 386.439 208.107 386.539 209.454C386.596 210.443 386.646 211.433 386.688 212.423C386.74 213.589 386.827 214.752 386.949 215.913C387.065 217.05 387.263 218.178 387.544 219.286C387.775 220.261 388.191 221.182 388.771 222H377.086C376.443 220.318 376.042 218.313 375.897 215.985C375.747 213.662 375.525 211.435 375.225 209.305C374.829 206.533 373.988 204.504 372.698 203.217C371.407 201.93 369.295 201.289 366.371 201.289H354.686ZM354.681 192.975H367.488V192.985C370.165 192.985 372.176 192.387 373.514 191.202C374.853 190.011 375.525 188.083 375.525 185.408C375.525 182.839 374.853 180.969 373.514 179.808C372.176 178.641 370.165 178.063 367.488 178.063H354.681V192.975ZM439.008 222V212.201H410.35V199.212H436.104V190.156H410.355V178.8H438.409V169.002H398.674V222H439.008ZM459.176 210.196L455.005 222H443.247L463.341 169.002H475.322L495.194 222H483.064L479.043 210.196H459.176ZM475.994 201.516H462.225L469.146 182.063H469.295L475.994 201.511V201.516ZM535.273 219.956C532.272 221.316 528.734 222 524.665 222H501.743V169.002H524.665C527.925 168.974 531.164 169.527 534.229 170.636C537.116 171.682 539.734 173.355 541.894 175.533C544.054 177.711 545.741 180.434 546.958 183.697C548.172 186.96 548.78 190.797 548.78 195.202C548.815 198.819 548.314 202.422 547.292 205.892C546.388 208.99 544.855 211.869 542.788 214.351C540.736 216.758 538.168 218.674 535.273 219.956ZM523.843 212.201H513.429V178.8H521.765C524.641 178.8 527.062 179.205 529.019 180.025C530.981 180.844 532.557 182.015 533.746 183.548C534.935 185.085 535.795 186.927 536.312 189.081C536.834 191.231 537.095 193.645 537.095 196.315C537.095 199.236 536.723 201.714 535.978 203.738C535.234 205.767 534.239 207.411 533.001 208.673C531.759 209.936 530.343 210.842 528.758 211.382C527.179 211.926 525.519 212.203 523.848 212.201H523.843ZM584.277 201.661V222H572.592V201.362L553.096 169.002H566.193L578.623 189.934L590.976 169.002H604L584.277 201.661Z" fill="rgba(0,0,0,0.45)"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M368.945 106.959L365.096 120H340L369.866 41H396.643L426.509 120H400.817L396.914 106.959H368.945ZM374.257 89.8765H391.765L382.984 61.4775L374.257 89.8765ZM462.127 120V90.6849H475.57C485.471 90.6849 492.834 88.4395 497.658 83.9488C502.482 79.4582 504.894 73.2251 504.894 65.2497C504.894 57.4898 502.681 51.5082 498.254 47.3049C493.827 43.1016 487.169 41 478.28 41H437.465V120H462.127ZM462.127 74.6801H468.144C472.878 74.6801 476.202 73.8628 478.117 72.2282C480.033 70.5936 480.99 68.5009 480.99 65.9502C480.99 63.4713 480.159 61.3697 478.497 59.6453C476.834 57.9209 473.709 57.0587 469.119 57.0587H462.127V74.6801ZM528.587 120L532.436 106.959H560.405L564.307 120H590L560.134 41H533.357L503.491 120H528.587ZM537.748 89.8765H555.255L546.474 61.4775L537.748 89.8765Z" fill="rgba(0,0,0,0.45)"></path>
+</svg>
+                <span>APA Compliant</span>
+              </div>
+            </div>
+              <div class="footer-compliance" style="margin-bottom:16px;">EU data residency · SSO via Microsoft Entra ID · Continuous monitoring via Vanta · MITRE ATT&amp;CK aligned · NIST CSF aligned</div>
+              <div class="footer-legal">© 2025 Moxso · <a href="file:///Users/oliverlilholt/Downloads/Moxso-Technical-Architecture-Integration_8.html#" style="color:inherit;">Privacy Policy</a> · This page was shared with you by a Moxso account executive.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+
+    // ── DOM REFERENCES ──────────────────────────────────────────
+    const sections = document.querySelectorAll('.section[id], .hero[id]');
+    const navLinks = document.querySelectorAll('.side-nav-list a');
+    const sideNav  = document.querySelector('.side-nav');
+    const hero     = document.querySelector('.hero');
+    const cta      = document.querySelector('.cta-footer-block');
+
+    // ── SIDE NAV VISIBILITY ─────────────────────────────────────
+    // Visible between hero exit and CTA entry.
+
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        sideNav.classList.toggle('is-visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0.1 });
+    heroObserver.observe(hero);
+
+    const ctaObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          sideNav.classList.remove('is-visible');
+        } else if (hero.getBoundingClientRect().bottom < 0) {
+          sideNav.classList.add('is-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    if (cta) ctaObserver.observe(cta);
+
+    // ── ACTIVE SECTION TRACKING ─────────────────────────────────
+    // Highlights matching side-nav link as user scrolls.
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(s => sectionObserver.observe(s));
+
+    // ── SCROLL REVEAL ───────────────────────────────────────────
+    // .reveal elements fade+blur in as they enter the viewport.
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  })();
+</script>
+
+
+
+</body></html>
